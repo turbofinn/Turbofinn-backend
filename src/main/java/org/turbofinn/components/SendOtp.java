@@ -8,23 +8,24 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_AuthenticationOTP;
+import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.util.Constants;
 
 import java.util.UUID;
 
 public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.SendOtpOutput> {
+    public static void main(String[] args) {
+        SendOtpInput sendOtpInput = new SendOtpInput();
+        sendOtpInput.setMobileNo("7985157963");
+        System.out.println(new SendOtp().handleRequest(sendOtpInput,null));
+    }
+
     @Override
     public SendOtpOutput handleRequest(SendOtp.SendOtpInput input, Context context) {
         System.out.println("input "+ new Gson().toJson(input));
-        if(input==null || input.mobileNo==null){
-            DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
-            dbAuthenticationOTP.setDeviceId(UUID.randomUUID().toString());
-            dbAuthenticationOTP.setMobileNo("8960880615");
-            dbAuthenticationOTP.setName("Gauurav Dingh");
-            dbAuthenticationOTP.setOtp("5678");
-            dbAuthenticationOTP.setEmailId("gaurab@turbofinn.com");
-            dbAuthenticationOTP.save();
-            return new SendOtpOutput(new Response(999,"Error3"));
+        if(input!=null || input.mobileNo!=null){
+            DB_User dbUser = DB_User.fetchUserByMobileNo(input.mobileNo);
+            System.out.println(dbUser);
         }
         return null;
 

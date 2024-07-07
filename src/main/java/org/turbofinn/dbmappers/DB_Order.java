@@ -20,6 +20,7 @@ public class DB_Order extends DB_DateTable {
     String orderId;
     String tableNo;
     String userId;
+    String restaurantId;
     double totalAmount;
     ArrayList<OrderList> orderLists ;
     String orderStatus;
