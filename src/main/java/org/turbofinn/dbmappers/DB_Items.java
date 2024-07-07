@@ -19,16 +19,17 @@ public class DB_Items extends DB_DateTable {
 
     @DynamoDBHashKey
     String itemId;
-    @DynamoDBIndexHashKey(globalSecondaryIndexName = "restaurentID-index")
-    String restaurentID;
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "restaurantId-index")
+    String restaurantId;
     String name;
-    @DynamoDBIndexHashKey(globalSecondaryIndexName = "type-index")
+
     String type;        //  food , beverage ,bakery
     String cuisine;     // Indian, chinese,japanese
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "category-index")
     String category;    // fastfood, chinese, biryani, pizza ,burger
-    String flag;
-    ArrayList<String> tags;
+    String flag;         //veg ,nonveg ,alcoholic,nonalcoholic
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "tag-index")
+    String tag;
     String description;
     Double price;
     String eta;
