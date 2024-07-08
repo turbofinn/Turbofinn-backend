@@ -1,6 +1,6 @@
 package org.turbofinn.components;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.gson.Gson;
@@ -31,9 +31,41 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
 
     @Override
     public CreateItems.CreateItemsOutput handleRequest(CreateItems.CreateItemsInput createItemsInput, Context context) {
-        if(createItemsInput ==null){
+        if(createItemsInput ==null ){
             return new CreateItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
+        if(createItemsInput.getRestaurantId()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide RestaurantId"));
+        }
+        if(createItemsInput.getName()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food name"));
+        }
+        if(createItemsInput.getType()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food type"));
+        }
+        if(createItemsInput.getCuisine()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Cuisine"));
+        }
+        if(createItemsInput.getFlag()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Flag"));
+        }
+        if(createItemsInput.getDescription()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Description"));
+        }
+        if(createItemsInput.getPrice()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set Food price"));
+        }
+        if(createItemsInput.getEta()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set estimated time"));
+        }
+        if(createItemsInput.getTag()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food tag"));
+        }
+        if(createItemsInput.getItemPicture()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set the food picture"));
+        }
+
+
         DB_Items dbItems = new DB_Items();
         dbItems.setRestaurantId(createItemsInput.getRestaurantId());
         dbItems.setName(createItemsInput.getName());
