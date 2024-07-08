@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Items;
-import org.turbofinn.dbmappers.DB_Restaurant;
+
 import org.turbofinn.util.Constants;
 
 
@@ -29,8 +29,7 @@ public class FetchItems implements RequestHandler<FetchItems.FetchItemsInput,Fet
             return new FetchItems.FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
 
         }
-        List<DB_Items> items = null;
-        items= DB_Items.fetchItemsByRestaurantIDAndTag(fetchItemsInput.getRestaurantId(),fetchItemsInput.tag);
+        List<DB_Items> items= DB_Items.fetchItemsByRestaurantIDAndTag(fetchItemsInput.getRestaurantId(),fetchItemsInput.tag);
         if(fetchItemsInput.getCategory()!=null){
           items = items.stream().filter(x->x.getCategory().equalsIgnoreCase(fetchItemsInput.category)).toList();
         }
