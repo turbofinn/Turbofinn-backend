@@ -53,6 +53,6 @@ public class DB_AuthenticationOTP extends DB_DateTable {
                 .withKeyConditionExpression("mobileNo = :mobileNo")
                 .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
         List<DB_AuthenticationOTP> list = AWSCredentials.dynamoDBMapper().query(DB_AuthenticationOTP.class, queryExpression);
-        return list!=null?list.get(0):null;
+        return !list.isEmpty()?list.get(0):null;
     }
 }
