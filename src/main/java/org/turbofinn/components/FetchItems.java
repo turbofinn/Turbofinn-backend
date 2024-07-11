@@ -21,23 +21,32 @@ public class FetchItems implements RequestHandler<FetchItems.FetchItemsInput,Fet
         input.setRestaurantId("5cef7136-ff4e-418a-ba00-5ef18d67bd43");
         input.setCategory("noodels");
         input.setTag("dineIn");
+        input.setUserId("9dfcbdb5-aafc-42fe-bef6-c919aabcca66");
         System.out.println(new Gson().toJson(new FetchItems().handleRequest(input,null)));
     }
     @Override
     public FetchItems.FetchItemsOutput handleRequest(FetchItems.FetchItemsInput fetchItemsInput, Context context) {
         if(fetchItemsInput==null || fetchItemsInput.restaurantId==null || fetchItemsInput.tag==null){
+
             return new FetchItems.FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
 
         }
         List<DB_Items> items= DB_Items.fetchItemsByRestaurantIDAndTag(fetchItemsInput.getRestaurantId(),fetchItemsInput.tag);
-        if(fetchItemsInput.getCategory()!=null){
-          items = items.stream().filter(x->x.getCategory().equalsIgnoreCase(fetchItemsInput.category)).toList();
+
+        if (fetchItemsInput.getCategory() != null) {
+            items = items.stream()
+                    .filter(x -> x.getCategory() != null && x.getCategory().equalsIgnoreCase(fetchItemsInput.getCategory()))
+                    .toList();
         }
-        if(fetchItemsInput.getFlag()!=null){
-            items =items.stream().filter(x->x.getCategory().equalsIgnoreCase(fetchItemsInput.flag)).toList();
+
+        if (fetchItemsInput.getFlag() != null) {
+            items = items.stream()
+                    .filter(x -> x.getFlag() != null && x.getFlag().equalsIgnoreCase(fetchItemsInput.getFlag()))
+                    .toList();
         }
 
         if (items.isEmpty()){
+
             return new FetchItems.FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
@@ -52,6 +61,7 @@ public class FetchItems implements RequestHandler<FetchItems.FetchItemsInput,Fet
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
     public static class FetchItemsInput {
+        public String userId;
         public String restaurantId;
         public String category;
         public String tag;
