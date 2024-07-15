@@ -28,7 +28,7 @@ public class DB_Order extends DB_DateTable {
     String customerFeedbck;
     double customerRating;
 
-    private class OrderList {
+    public class OrderList {
         String itemId;
         int quantity;
     }
