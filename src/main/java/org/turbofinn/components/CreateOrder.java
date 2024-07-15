@@ -18,23 +18,35 @@ import java.util.List;
 public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,CreateOrder.CreateOrdersOutput> {
 
     public static void main(String[] args) {
-        CreateOrderInput createOrderInput = new CreateOrderInput();
-//        createItemsInput.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
-//        createItemsInput.setName("paneer chili dusre vale ka");
-//        createItemsInput.setType("noodels");
-//        createItemsInput.setCuisine("chinese");
-//        createItemsInput.setCategory("paneer");
-//        createItemsInput.setFlag("veg");
-//        createItemsInput.setTag("dineIn");
-//        createItemsInput.setDescription("very delicious ,somkey hot ,korean noodles");
-//        createItemsInput.setPrice(150.0);
-//        createItemsInput.setEta("dineIn");
-//        createItemsInput.setItemPicture("dineIn");
-//        System.out.println(new Gson().toJson(new CreateItems().handleRequest(createOdersOutput,null)));
+        String request = "{\n" +
+                "    \"orderId\": \"div1002\",\n" +
+                "    \"tableNo\": \"table5\",\n" +
+                "    \"userId\": \"userId789\",\n" +
+                "    \"restaurantId\": \"restaurantId456\",\n" +
+                "    \"totalAmount\": 35.0,\n" +
+                "    \"paymentStatus\": \"paid\",\n" +
+                "    \"orderLists\": [\n" +
+                "        {\n" +
+                "            \"itemId\": \"item1\",\n" +
+                "            \"quantity\": 2\n" +
+                "        },\n" +
+                "        {\n" +
+                "            \"itemId\": \"item2\",\n" +
+                "            \"quantity\": 1\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"orderStatus\": \"orderStatus\",\n" +
+                "    \"customerRequest\": \"Please make it spicy\",\n" +
+                "    \"customerFeedbck\": \"Great service\",\n" +
+                "    \"customerRating\": 4.5\n" +
+                "}\n";
+        System.out.println(new Gson().toJson(new CreateOrder().handleRequest(new Gson().fromJson(request, CreateOrderInput.class), null)));
+
     }
 
     @Override
     public CreateOrder.CreateOrdersOutput handleRequest(CreateOrder.CreateOrderInput createOrderInput, Context context) {
+        System.out.println("input " +new Gson().toJson(createOrderInput));
         if(createOrderInput == null ){
             return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
@@ -54,7 +66,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         dbOrder.setOrderLists(createOrderInput.getOrderLists());
         dbOrder.setOrderStatus(createOrderInput.getOrderStatus());
         dbOrder.setCustomerRequest(createOrderInput.getCustomerRequest());
-        dbOrder.setCustomerFeedbck(createOrderInput.getCustomerFeedbck());
+        dbOrder.setCustomerFeedback(createOrderInput.getCustomerFeedback());
         dbOrder.setCustomerRating(createOrderInput.getCustomerRating());
         dbOrder.save();
         return new CreateOrdersOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
@@ -71,11 +83,12 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         String tableNo;
         String userId;
         String restaurantId;
+        String paymentStatus;
         double totalAmount;
         ArrayList<DB_Order.OrderList> orderLists ;
         String orderStatus;
         String customerRequest;
-        String customerFeedbck;
+        String customerFeedback;
         double customerRating;
     }
 

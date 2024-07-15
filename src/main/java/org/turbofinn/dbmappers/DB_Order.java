@@ -2,11 +2,14 @@ package org.turbofinn.dbmappers;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
 import com.google.gson.Gson;
 import lombok.*;
 import org.turbofinn.aws.AWSCredentials;
+import org.turbofinn.components.OrderListConverter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,14 +24,17 @@ public class DB_Order extends DB_DateTable {
     String tableNo;
     String userId;
     String restaurantId;
+    String paymentStatus;
     double totalAmount;
-    ArrayList<OrderList> orderLists ;
+
+    @DynamoDBTypeConverted(converter = OrderListConverter.class)
+    List<OrderList> orderLists;
     String orderStatus;
     String customerRequest;
-    String customerFeedbck;
+    String customerFeedback;
     double customerRating;
 
-    public class OrderList {
+    public static class OrderList {
         String itemId;
         int quantity;
     }
