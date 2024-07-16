@@ -43,7 +43,7 @@ public class DB_Items extends DB_DateTable {
         System.out.println("*** Item Saved *** " + new Gson().toJson(this));
     }
 
-    public DB_Items fetchItemByID(String itemId){
+    public static DB_Items fetchItemByID(String itemId){
         return (itemId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Items.class, itemId);
 
     }
