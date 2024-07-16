@@ -1,14 +1,17 @@
 package org.turbofinn.dbmappers;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverted;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
 import lombok.*;
 import org.turbofinn.aws.AWSCredentials;
 import org.turbofinn.components.OrderListConverter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Getter
@@ -39,9 +42,41 @@ public class DB_Order extends DB_DateTable {
         int quantity;
     }
 
+    public static enum ActionType {
+        CREATE("CREATE"),
+        UPDATE("UPDATE");
+        private String text;
+
+        private ActionType(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return this.text;
+        }
+
+        public static ActionType getActionType(String type) {
+            if (type == null) {
+                return null;
+            }
+            switch (type) {
+                case "CREATE":
+                    return ActionType.CREATE;
+                case "UPDATE":
+                    return ActionType.UPDATE;
+                default:
+                    return null;
+            }
+        }
+    }
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
         System.out.println("*** Oredr Saved *** " + new Gson().toJson(this));
+    }
+
+    public static DB_Order fetchOrderByOrderID(String orderId){
+        return (orderId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Order.class, orderId);
     }
 }

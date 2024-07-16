@@ -19,16 +19,17 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
 
     public static void main(String[] args) {
         String request = "{\n" +
-                "    \"orderId\": \"div1002\",\n" +
+                "    \"orderId\": \"sdt\",\n" +
                 "    \"tableNo\": \"table5\",\n" +
                 "    \"userId\": \"userId789\",\n" +
                 "    \"restaurantId\": \"restaurantId456\",\n" +
                 "    \"totalAmount\": 35.0,\n" +
+                "    \"action\": \"UPDATE\",\n" +
                 "    \"paymentStatus\": \"paid\",\n" +
                 "    \"orderLists\": [\n" +
                 "        {\n" +
                 "            \"itemId\": \"item1\",\n" +
-                "            \"quantity\": 2\n" +
+                "            \"quantity\": 5\n" +
                 "        },\n" +
                 "        {\n" +
                 "            \"itemId\": \"item2\",\n" +
@@ -51,12 +52,24 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
             return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
         if(createOrderInput.orderLists.isEmpty()){
-            return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Please add items to order"));
+            return new CreateOrdersOutput( new Response(Constants.GENERIC_RESPONSE_CODE,"Please add items to order"));
+        }
+        if(createOrderInput.action == null){
+            return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
         //add more checks
 
+        switch (DB_Order.ActionType.getActionType(createOrderInput.action)) {
+            case CREATE:
+                return createNewOrder(createOrderInput);
+            case UPDATE:
+                return updateOrder(createOrderInput);
+            default:
+                return new CreateOrdersOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
+        }
+    }
 
-
+    public CreateOrder.CreateOrdersOutput createNewOrder(CreateOrder.CreateOrderInput createOrderInput){
         DB_Order dbOrder = new DB_Order();
         dbOrder.setRestaurantId(createOrderInput.getRestaurantId());
         dbOrder.setOrderId(createOrderInput.getOrderId());
@@ -68,6 +81,13 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         dbOrder.setCustomerRequest(createOrderInput.getCustomerRequest());
         dbOrder.setCustomerFeedback(createOrderInput.getCustomerFeedback());
         dbOrder.setCustomerRating(createOrderInput.getCustomerRating());
+        dbOrder.save();
+        return new CreateOrdersOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
+    }
+
+    public CreateOrder.CreateOrdersOutput updateOrder(CreateOrder.CreateOrderInput createOrderInput){
+        DB_Order dbOrder = DB_Order.fetchOrderByOrderID(createOrderInput.orderId);
+        dbOrder.setOrderLists(createOrderInput.orderLists);
         dbOrder.save();
         return new CreateOrdersOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
     }
@@ -84,6 +104,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         String userId;
         String restaurantId;
         String paymentStatus;
+        String action;
         double totalAmount;
         ArrayList<DB_Order.OrderList> orderLists ;
         String orderStatus;
