@@ -39,6 +39,7 @@ public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.Sen
 
     }
 
+
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
     public static class SendOtpOutput {
         public Response response;
