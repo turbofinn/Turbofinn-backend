@@ -19,16 +19,16 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
 
     public static void main(String[] args) {
         String request = "{\n" +
-                "    \"orderId\": \"sdt\",\n" +
+                "    \"orderId\": \"qwdedf\",\n" +
                 "    \"tableNo\": \"table5\",\n" +
                 "    \"userId\": \"userId789\",\n" +
                 "    \"restaurantId\": \"restaurantId456\",\n" +
                 "    \"totalAmount\": 35.0,\n" +
-                "    \"action\": \"UPDATE\",\n" +
+                "    \"action\": \"CREATE\",\n" +
                 "    \"paymentStatus\": \"paid\",\n" +
                 "    \"orderLists\": [\n" +
                 "        {\n" +
-                "            \"itemId\": \"item1\",\n" +
+                "            \"itemId\": \"ttttt\",\n" +
                 "            \"quantity\": 5\n" +
                 "        },\n" +
                 "        {\n" +
@@ -81,6 +81,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         dbOrder.setCustomerRequest(createOrderInput.getCustomerRequest());
         dbOrder.setCustomerFeedback(createOrderInput.getCustomerFeedback());
         dbOrder.setCustomerRating(createOrderInput.getCustomerRating());
+        dbOrder.setPaymentStatus(createOrderInput.getPaymentStatus());
         dbOrder.save();
         return new CreateOrdersOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
     }
