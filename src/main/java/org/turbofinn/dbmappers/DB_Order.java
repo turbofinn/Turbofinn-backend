@@ -76,6 +76,18 @@ public class DB_Order extends DB_DateTable {
         System.out.println("*** Oredr Saved *** " + new Gson().toJson(this));
     }
 
+
+
+    public static List<DB_Order> fetchOrdersByUserID(String userId) {
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":userId", new AttributeValue().withS(userId));
+        DynamoDBQueryExpression<DB_Order> queryExpression = new DynamoDBQueryExpression<DB_Order>()
+                .withIndexName("userId-index")
+                .withKeyConditionExpression("userId = :userId")
+                .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
+        return AWSCredentials.dynamoDBMapper().query(DB_Order.class, queryExpression);
+    }
+
     public static DB_Order fetchOrderByOrderID(String orderId){
         return (orderId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Order.class, orderId);
     }
