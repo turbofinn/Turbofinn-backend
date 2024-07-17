@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.turbofinn.dbmappers.DB_Items;
 import org.turbofinn.dbmappers.DB_Order;
 import org.turbofinn.util.Constants;
 
@@ -19,7 +20,7 @@ public class GetOrderdItemsList implements RequestHandler<GetOrderdItemsList.Get
         input.setUserId("123456user");
         input.setRestaurantId("restaurantId456");
         input.setOrderId("4");
-        input.setPaymentStatus("not_paid");  // or "paid"
+        input.setPaymentStatus("paid");  // or "paid"
         System.out.println(new Gson().toJson(new GetOrderdItemsList().handleRequest(input,null)));
 
     }
@@ -40,36 +41,40 @@ public class GetOrderdItemsList implements RequestHandler<GetOrderdItemsList.Get
 
     }
 
-    private GetOrderdItemsListOutPut fetchAllOrderedList(String userId,String restaurantId) {
+    private GetOrderdItemsListOutPut fetchAllOrderedList(String userId, String restaurantId) {
         List<DB_Order> dbOrders = DB_Order.fetchOrdersByUserID(userId);
-//        if (restaurantId != null) {
-//            dbOrders = dbOrders.stream()
-//                    .filter(x -> x.getRestaurantId() != null && x.getRestaurantId().equalsIgnoreCase(restaurantId))
-//                    .toList();
-//        }
-        List<DB_Order.OrderList> allOrderLists = new ArrayList<>();
+        List<OrderedItemDetails> allOrderDetails = new ArrayList<>();
         for (DB_Order order : dbOrders) {
             if (order.getOrderLists() != null) {
-                allOrderLists.addAll(order.getOrderLists());
+                for (DB_Order.OrderList orderList : order.getOrderLists()) {
+                    DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
+                    if (item != null) {
+                        allOrderDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+                    }
+                }
             }
         }
-        return new GetOrderdItemsList.GetOrderdItemsListOutPut(new GetOrderdItemsList.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),allOrderLists);
-
+        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), allOrderDetails);
     }
-
     private GetOrderdItemsListOutPut fetchOrderedList(String orderId) {
         DB_Order dbOrder = DB_Order.fetchOrderByOrderID(orderId);
-        if(dbOrder==null){
-            return new GetOrderdItemsList.GetOrderdItemsListOutPut(new GetOrderdItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+        if (dbOrder == null) {
+            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
-        return new GetOrderdItemsList.GetOrderdItemsListOutPut(new GetOrderdItemsList.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),dbOrder.getOrderLists());
+        List<OrderedItemDetails> orderedItemDetails = new ArrayList<>();
+        for (DB_Order.OrderList orderList : dbOrder.getOrderLists()) {
+            DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
+            if (item != null) {
+                orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+            }
+        }
+        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), orderedItemDetails);
     }
 
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
     public static class GetOrderdItemsListOutPut {
         public Response response;
-        public List<DB_Order.OrderList> orderList;
-
+        public List<OrderedItemDetails> orderList;
     }
 
     @Setter
@@ -88,5 +93,13 @@ public class GetOrderdItemsList implements RequestHandler<GetOrderdItemsList.Get
         int responseCode;
         String message;
 
+    }
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class OrderedItemDetails {
+        public DB_Items item;
+        public int quantity;
     }
 }
