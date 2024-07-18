@@ -45,6 +45,7 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
     public static class CreateRestaurantInput {
+        public String restaurantId;
         public String name;
         public String address;
         public String city;
