@@ -11,6 +11,9 @@ import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Items;
 import org.turbofinn.util.Constants;
 
+import java.io.File;
+import java.util.UUID;
+
 public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,CreateItems.CreateItemsOutput> {
 
     public static void main(String[] args) {
@@ -25,7 +28,8 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         createItemsInput.setDescription("very delicious ,somkey hot ,korean noodles");
         createItemsInput.setPrice(150.0);
         createItemsInput.setEta("dineIn");
-        createItemsInput.setItemPicture("dineIn");
+        createItemsInput.setItemPicture("C:\\Users\\saurabh\\Downloads\\apple.png");
+        System.out.println(createItemsInput.getItemPicture());
         System.out.println(new Gson().toJson(new CreateItems().handleRequest(createItemsInput,null)));
     }
 
@@ -65,6 +69,17 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set the food picture"));
         }
 
+        //logic for uploading image in s3
+        String bucketName = "turbo-treats";
+        String uuid = UUID.randomUUID().toString();
+        String imageKey = "Images/" + uuid + ".jpg";
+        File imageFile = new File(createItemsInput.getItemPicture());
+
+        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
+        if (imageUrl == null) {
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
+        }
+
 
         DB_Items dbItems = new DB_Items();
         dbItems.setRestaurantId(createItemsInput.getRestaurantId());
@@ -77,7 +92,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setDescription(createItemsInput.getDescription());
         dbItems.setPrice(createItemsInput.getPrice());
         dbItems.setEta(createItemsInput.getEta());
-        dbItems.setItemPicture(createItemsInput.getItemPicture());
+        dbItems.setItemPicture(uuid);
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
     }
