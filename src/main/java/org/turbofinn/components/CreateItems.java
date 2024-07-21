@@ -9,7 +9,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Items;
+
 import org.turbofinn.util.Constants;
+
+
 
 import java.io.File;
 import java.util.UUID;
@@ -25,11 +28,12 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         createItemsInput.setCategory("paneer");
         createItemsInput.setFlag("veg");
         createItemsInput.setTag("dineIn");
+        createItemsInput.setAction("CREATE");
         createItemsInput.setDescription("very delicious ,somkey hot ,korean noodles");
         createItemsInput.setPrice(150.0);
         createItemsInput.setEta("dineIn");
-        createItemsInput.setItemPicture("C:\\Users\\saurabh\\Downloads\\apple.png");
-        System.out.println(createItemsInput.getItemPicture());
+        createItemsInput.setItemPicture("C:\\Users\\saurabh\\Downloads\\saurabh123.jpeg");
+
         System.out.println(new Gson().toJson(new CreateItems().handleRequest(createItemsInput,null)));
     }
 
@@ -41,6 +45,93 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         if(createItemsInput.getRestaurantId()==null){
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide RestaurantId"));
         }
+
+        switch (DB_Items.ActionType.getActionType(createItemsInput.action)) {
+            case CREATE:
+                return createNewItem(createItemsInput);
+            case UPDATE:
+                return updateItem(createItemsInput);
+            case DELETE:
+                return softDeleteItem(createItemsInput);
+            default:
+                return new CreateItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
+        }
+    }
+
+    private CreateItemsOutput softDeleteItem(CreateItemsInput createItemsInput) {
+        if(createItemsInput.getItemId()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Item id is null"));
+        }
+        DB_Items dbItems = DB_Items.fetchItemByID(createItemsInput.itemId);
+        dbItems.setIsDeleted("true");
+        dbItems.save();
+
+        return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
+    }
+
+    private CreateItemsOutput updateItem(CreateItemsInput createItemsInput) {
+        if(createItemsInput.getName()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food name"));
+        }
+        if(createItemsInput.getType()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food type"));
+        }
+        if(createItemsInput.getCuisine()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Cuisine"));
+        }
+        if(createItemsInput.getFlag()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Flag"));
+        }
+        if(createItemsInput.getDescription()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food Description"));
+        }
+        if(createItemsInput.getPrice()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set Food price"));
+        }
+        if(createItemsInput.getEta()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set estimated time"));
+        }
+        if(createItemsInput.getTag()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food tag"));
+        }
+        if(createItemsInput.getItemPicture()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set the food picture"));
+        }
+        if(createItemsInput.getItemId()==null){
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Item id is null"));
+        }
+
+
+        //logic for uploading image in s3
+        String bucketName = "turbo-treats";
+        String uuid = UUID.randomUUID().toString();
+        String imageKey = "Images/" + uuid + ".jpg";
+        File imageFile = new File(createItemsInput.getItemPicture());
+
+        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
+        if (imageUrl == null) {
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
+        }
+
+
+        DB_Items dbItems = DB_Items.fetchItemByID(createItemsInput.itemId);
+        dbItems.setRestaurantId(createItemsInput.getRestaurantId());
+        dbItems.setName(createItemsInput.getName());
+        dbItems.setType(createItemsInput.getType());
+        dbItems.setCuisine(createItemsInput.getCuisine());
+        dbItems.setCategory(createItemsInput.getCategory());
+        dbItems.setFlag(createItemsInput.getFlag());
+        dbItems.setTag(createItemsInput.getTag());
+        dbItems.setDescription(createItemsInput.getDescription());
+        dbItems.setPrice(createItemsInput.getPrice());
+        dbItems.setEta(createItemsInput.getEta());
+        dbItems.setItemPicture(uuid);
+        dbItems.save();
+        return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
+
+    }
+
+    private CreateItemsOutput createNewItem(CreateItemsInput createItemsInput) {
         if(createItemsInput.getName()==null){
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food name"));
         }
@@ -95,6 +186,8 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setItemPicture(uuid);
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
+
+
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
@@ -105,6 +198,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
     public static class CreateItemsInput {
         String restaurantId;
+        String itemId;
         String name;
         String type;        //  food , beverage ,bakery
         String cuisine;     // Indian, chinese,japanese
@@ -115,6 +209,8 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         Double price;
         String eta;
         String itemPicture;
+
+        String action;
 
     }
 
