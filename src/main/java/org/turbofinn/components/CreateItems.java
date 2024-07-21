@@ -209,9 +209,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         Double price;
         String eta;
         String itemPicture;
-
         String action;
-
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor

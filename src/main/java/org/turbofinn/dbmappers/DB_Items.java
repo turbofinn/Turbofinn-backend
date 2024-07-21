@@ -38,9 +38,6 @@ public class DB_Items extends DB_DateTable {
     String itemPicture;
     String isDeleted = "false";
 
-
-
-
     public static enum ActionType {
         CREATE("CREATE"),
         UPDATE("UPDATE"),
@@ -73,10 +70,9 @@ public class DB_Items extends DB_DateTable {
         }
     }
 
-
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
-        System.out.println("*** Item Saved *** " + new Gson().toJson(this));
+        System.out.println("*** Item Saved ***" + new Gson().toJson(this));
     }
 
     public static DB_Items fetchItemByID(String itemId){

@@ -10,8 +10,14 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.google.gson.Gson;
+import lombok.*;
 import org.turbofinn.aws.AWSCredentials;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @DynamoDBTable(tableName = "Payments")
 public class DB_Payments extends DB_DateTable{
 
@@ -23,8 +29,8 @@ public class DB_Payments extends DB_DateTable{
     String tableNo;
     String paymentStatus;
     double paymentAmount;
-    Date paymentDate;
-    String customerId;
+    String paymentDate;
+    String userId;
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
@@ -35,13 +41,13 @@ public class DB_Payments extends DB_DateTable{
         return (paymentId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Payments.class, paymentId);
     }
 
-//    public static List<DB_Items> fetchItemsByRestaurantID(String restaurantId) {
-//        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-//        expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
-//        DynamoDBQueryExpression<DB_Items> queryExpression = new DynamoDBQueryExpression<DB_Items>()
-//                .withIndexName("restaurantId-index")
-//                .withKeyConditionExpression("restaurantId = :restaurantId")
-//                .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
-//        return AWSCredentials.dynamoDBMapper().query(DB_Items.class, queryExpression);
-//    }
+    public static List<DB_Payments> fetchPaymentsByRestaurantID(String restaurantId) {
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
+        DynamoDBQueryExpression<DB_Payments> queryExpression = new DynamoDBQueryExpression<DB_Payments>()
+                .withIndexName("restaurantId-index")
+                .withKeyConditionExpression("restaurantId = :restaurantId")
+                .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
+        return AWSCredentials.dynamoDBMapper().query(DB_Payments.class, queryExpression);
+    }
 }
