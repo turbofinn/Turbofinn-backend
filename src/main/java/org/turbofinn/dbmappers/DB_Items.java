@@ -36,6 +36,42 @@ public class DB_Items extends DB_DateTable {
     Double price;
     String eta;
     String itemPicture;
+    String isDeleted = "false";
+
+
+
+
+    public static enum ActionType {
+        CREATE("CREATE"),
+        UPDATE("UPDATE"),
+        DELETE("DELETE");
+        private String text;
+
+        private ActionType(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return this.text;
+        }
+
+        public static DB_Items.ActionType getActionType(String type) {
+            if (type == null) {
+                return null;
+            }
+            switch (type) {
+                case "CREATE":
+                    return DB_Items.ActionType.CREATE;
+                case "UPDATE":
+                    return DB_Items.ActionType.UPDATE;
+                case "DELETE":
+                    return DB_Items.ActionType.DELETE;
+                default:
+                    return null;
+            }
+        }
+    }
 
 
     public void save() {
