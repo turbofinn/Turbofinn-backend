@@ -17,7 +17,7 @@ import java.util.UUID;
 public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.SendOtpOutput> {
     public static void main(String[] args) {
         SendOtpInput sendOtpInput = new SendOtpInput();
-        sendOtpInput.setMobileNo("7985157963");
+        sendOtpInput.setMobileNo("7985157933");
         System.out.println(new Gson().toJson(new SendOtp().handleRequest(sendOtpInput,null)));
     }
 
@@ -28,14 +28,23 @@ public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.Sen
             return new SendOtpOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
-        String otp = String.format("%04d", new Random().nextInt(10000));
-        DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
-        dbAuthenticationOTP.setMobileNo(input.mobileNo);
-        dbAuthenticationOTP.setOtp(otp);
-        dbAuthenticationOTP.setName(input.userName);
-        dbAuthenticationOTP.setEmailId(input.emailId);
-        dbAuthenticationOTP.save();
-        return new SendOtpOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),otp);
+        DB_AuthenticationOTP a_otp = DB_AuthenticationOTP.fetchOtpByMobileNo(input.mobileNo);
+        if (a_otp==null){
+            String otp = String.format("%04d", new Random().nextInt(10000));
+            DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
+            dbAuthenticationOTP.setMobileNo(input.mobileNo);
+            dbAuthenticationOTP.setOtp(otp);
+            dbAuthenticationOTP.setName(input.userName);
+            dbAuthenticationOTP.setEmailId(input.emailId);
+            dbAuthenticationOTP.save();
+            return new SendOtpOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),otp);
+        }
+        else {
+            return new SendOtpOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),a_otp.getOtp());
+        }
+
+
+
 
     }
 

@@ -41,7 +41,9 @@ public class DB_Items extends DB_DateTable {
     public static enum ActionType {
         CREATE("CREATE"),
         UPDATE("UPDATE"),
-        DELETE("DELETE");
+        DELETE("DELETE"),
+        CRITERIA("CRITERIA"),
+        BYID("BYID");
         private String text;
 
         private ActionType(String text) {
@@ -64,6 +66,10 @@ public class DB_Items extends DB_DateTable {
                     return DB_Items.ActionType.UPDATE;
                 case "DELETE":
                     return DB_Items.ActionType.DELETE;
+                case "CRITERIA":
+                    return DB_Items.ActionType.CRITERIA;
+                case "BYID":
+                    return DB_Items.ActionType.BYID;
                 default:
                     return null;
             }

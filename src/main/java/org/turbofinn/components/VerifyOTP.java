@@ -13,8 +13,8 @@ import org.turbofinn.util.Constants;
 public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,VerifyOTP.VerifyOtpOutput> {
     public static void main(String[] args) {
         VerifyOtpInput input = new VerifyOtpInput();
-        input.setMobileNo("7985157963");
-        input.setOtp("1389");
+        input.setMobileNo("7985157933");
+        input.setOtp("1853");
         System.out.println(new Gson().toJson(new VerifyOTP().handleRequest(input,null)));
 
     }
@@ -24,15 +24,20 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
             return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
 
         }
+
         DB_AuthenticationOTP otp = DB_AuthenticationOTP.fetchOtpByMobileNo(input.mobileNo);
 
+        System.out.println(new Gson().toJson(otp));
         if(otp == null ){
+
             return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
-        if(otp.getOtp().equalsIgnoreCase(input.getOtp())){
+        if(otp.getOtp().equalsIgnoreCase(input.otp)){
+
             return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
         }
         else{
+
             return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
 

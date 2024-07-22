@@ -44,7 +44,7 @@ public class TFLambdaUpdate {
     private static Regions region = Constants.IS_PROD ? Regions.US_EAST_1 : Regions.US_EAST_1;
 
 
-    private static List<String> lambdaFunctionsToupload =   List.of("HelloWorld");
+    private static List<String> lambdaFunctionsToupload =   List.of("CreateItems","FetchItems","GetOrderedItemsList","VerifyOtp","SendOtp");
 
 
     public static void main(String[] args) throws MavenInvocationException {
@@ -70,11 +70,11 @@ public class TFLambdaUpdate {
 
     private static void createLambdaCodeZipFile() throws MavenInvocationException {
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setJavaHome(new File("/Users/gauravsingh/Library/Java/JavaVirtualMachines/corretto-21.0.3/Contents/Home"));
+        request.setJavaHome(new File("C:\\Program Files\\Amazon Corretto\\jdk21.0.3_9"));
         request.setGoals(Collections.singletonList("package"));
         request.setBaseDirectory(new File(System.getProperty("user.dir")));
         DefaultInvoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File(System.getenv("HOME") + "/Applications/apache-maven-3.9.6/"));
+        invoker.setMavenHome(new File( "C:\\Program Files\\apache-maven-3.9.6"));
         InvocationResult result = invoker.execute(request);
         if (result.getExitCode() != 0) {
             throw new RuntimeException("Could not create lambda package file.");

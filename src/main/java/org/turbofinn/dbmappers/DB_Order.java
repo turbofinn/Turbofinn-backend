@@ -48,7 +48,8 @@ public class DB_Order extends DB_DateTable {
 
     public static enum ActionType {
         CREATE("CREATE"),
-        UPDATE("UPDATE");
+        UPDATE("UPDATE"),
+        NOTPAID("NOTPAID");
         private String text;
 
         private ActionType(String text) {
@@ -69,6 +70,8 @@ public class DB_Order extends DB_DateTable {
                     return ActionType.CREATE;
                 case "UPDATE":
                     return ActionType.UPDATE;
+                case "NOTPAID":
+                    return ActionType.NOTPAID;
                 default:
                     return null;
             }
