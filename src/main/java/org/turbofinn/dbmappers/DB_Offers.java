@@ -20,9 +20,11 @@ public class DB_Offers extends DB_DateTable{
     String offerId;
     String offerName;
     String details;
-    String validity;
+    String startDate;
+    String endDate;
     String referenceId;
     String restaurantId;
+    String image;
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
@@ -31,7 +33,6 @@ public class DB_Offers extends DB_DateTable{
 
     public static DB_Offers fetchOfferByID(String offerId){
         return (offerId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Offers.class, offerId);
-
     }
 
 }
