@@ -14,11 +14,12 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
     public static void main(String[] args) {
         String request = "{\n" +
-                "    \"tableId\": \"tableId123\",\n" +
-                "    \"tableNo\": \"T001\",\n" +
-                "    \"restaurantId\": \"restaurantId456\",\n" +
-                "    \"userId\": \"userId789\",\n" +
-                "    \"action\": \"CREATE\"\n" +
+                "    \"tableNo\": \"T002\",\n" +
+                "    \"restaurantId\": \"restaurantId123\",\n" +
+                "    \"userId\": \"userId456\",\n" +
+                "    \"status\": \"Occupied\",\n" +
+                "    \"paymentStatus\": \"Paid\",\n" +
+                "    \"action\": \"UPDATE\"\n" +
                 "}\n";
         System.out.println(new Gson().toJson(new CreateTable().handleRequest(new Gson().fromJson(request, CreateTableInput.class), null)));
     }
@@ -46,6 +47,8 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
         dbTable.setTableNo(input.getTableNo());
         dbTable.setRestaurantId(input.getRestaurantId());
         dbTable.setUserId(input.getUserId());
+        dbTable.setStatus(input.getStatus());
+        dbTable.setPaymentStatus(input.getPaymentStatus());
 
         try {
             dbTable.save();
@@ -57,7 +60,7 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
     public CreateTableOutput updateTable(CreateTableInput input) {
         try {
-            DB_Table dbTable = DB_Table.fetchByTableId(input.getTableId());
+            DB_Table dbTable = DB_Table.fetchByTableNo(input.getTableNo(), input.getRestaurantId());
             if (dbTable == null) {
                 return new CreateTableOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Table not found"));
             }
@@ -65,6 +68,8 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
             dbTable.setTableNo(input.getTableNo());
             dbTable.setRestaurantId(input.getRestaurantId());
             dbTable.setUserId(input.getUserId());
+            dbTable.setStatus(input.getStatus());
+            dbTable.setPaymentStatus(input.getPaymentStatus());
             dbTable.save();
             return new CreateTableOutput(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE));
         } catch (Exception e) {
@@ -85,10 +90,11 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateTableInput {
-        private String tableId;
         private String tableNo;
         private String restaurantId;
         private String userId;
+        private String status;
+        private String paymentStatus;
         private String action;
     }
 

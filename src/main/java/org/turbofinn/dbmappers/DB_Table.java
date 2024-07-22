@@ -29,31 +29,53 @@ public class DB_Table {
     @DynamoDBAttribute
     private String userId;
 
+    @DynamoDBAttribute
+    private String status;
+
+    @DynamoDBAttribute
+    private String paymentStatus;
+
     public void save() {
-//        if (this.tableId == null) {
-//            throw new IllegalArgumentException("Table ID cannot be null");
-//        }
         AWSCredentials.dynamoDBMapper().save(this);
         System.out.println("*** Table Saved *** " + this.toString());
     }
 
-    public static DB_Table fetchByTableId(String tableId) {
-        if (tableId == null) {
-            throw new IllegalArgumentException("Table ID cannot be null");
+    public static DB_Table fetchByTableNo(String tableNo, String restaurantId) {
+        if (tableNo == null || restaurantId == null) {
+            throw new IllegalArgumentException("Table No and Restaurant ID cannot be null");
         }
-        return AWSCredentials.dynamoDBMapper().load(DB_Table.class, tableId);
+
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":tableNo", new AttributeValue().withS(tableNo));
+        expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
+
+        DynamoDBQueryExpression<DB_Table> queryExpression = new DynamoDBQueryExpression<DB_Table>()
+                .withIndexName("tableNo-restaurantId-index") // Ensure this index exists
+                .withKeyConditionExpression("tableNo = :tableNo and restaurantId = :restaurantId")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withConsistentRead(false);
+
+        List<DB_Table> tables = AWSCredentials.dynamoDBMapper().query(DB_Table.class, queryExpression);
+        if (tables.isEmpty()) {
+            return null;
+        }
+        return tables.get(0);
     }
 
     public static List<DB_Order> fetchOrderDetailsByTableNo(String tableNo, String restaurantId, String userId) {
+        if (tableNo == null || restaurantId == null || userId == null) {
+            throw new IllegalArgumentException("Table No, Restaurant ID, and User ID cannot be null");
+        }
+
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":tableNo", new AttributeValue().withS(tableNo));
         expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
         expressionAttributeValues.put(":userId", new AttributeValue().withS(userId));
 
         DynamoDBQueryExpression<DB_Order> queryExpression = new DynamoDBQueryExpression<DB_Order>()
-                .withIndexName("tableNo-index")
-                .withKeyConditionExpression("tableNo = :tableNo")
-                .withFilterExpression("restaurantId = :restaurantId and userId = :userId")
+                .withIndexName("tableNo-restaurantId-index") // Use the same index
+                .withKeyConditionExpression("tableNo = :tableNo and restaurantId = :restaurantId")
+                .withFilterExpression("userId = :userId")
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withConsistentRead(false);
 
