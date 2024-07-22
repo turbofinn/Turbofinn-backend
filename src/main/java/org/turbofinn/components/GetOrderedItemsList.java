@@ -14,30 +14,31 @@ import org.turbofinn.util.Constants;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetOrderdItemsList implements RequestHandler<GetOrderdItemsList.GetOrderdItemsListInput,GetOrderdItemsList.GetOrderdItemsListOutPut> {
+public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.GetOrderdItemsListInput, GetOrderedItemsList.GetOrderdItemsListOutPut> {
     public static void main(String[] args) {
         GetOrderdItemsListInput input = new GetOrderdItemsListInput();
         input.setUserId("123456user");
         input.setRestaurantId("restaurantId456");
         input.setOrderId("4");
-        input.setPaymentStatus("paid");  // or "paid"
-        System.out.println(new Gson().toJson(new GetOrderdItemsList().handleRequest(input,null)));
+        input.setPaymentStatus("NOTPAID");  // or "paid"
+        System.out.println(new Gson().toJson(new GetOrderedItemsList().handleRequest(input,null)));
 
     }
 
     @Override
-    public GetOrderdItemsList.GetOrderdItemsListOutPut handleRequest(GetOrderdItemsList.GetOrderdItemsListInput input, Context context) {
+    public GetOrderedItemsList.GetOrderdItemsListOutPut handleRequest(GetOrderedItemsList.GetOrderdItemsListInput input, Context context) {
         if(input==null || input.orderId==null || input.restaurantId==null || input.userId==null){
-            return new GetOrderdItemsList.GetOrderdItemsListOutPut(new GetOrderdItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+            return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
 
-        if ("not_paid".equalsIgnoreCase(input.getPaymentStatus())) {
-            return fetchOrderedList(input.orderId);
+        switch (DB_Order.ActionType.getActionType(input.paymentStatus)){
+            case NOTPAID:
+                return fetchOrderedList(input.orderId);
+            default:
+                return fetchAllOrderedList(input.userId,input.restaurantId);
         }
-         else {
-            return fetchAllOrderedList(input.userId,input.restaurantId);
-        }
+
 
     }
 

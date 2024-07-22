@@ -17,16 +17,16 @@ public class FetchItems implements RequestHandler<FetchItems.FetchItemsInput, Fe
     public static void main(String[] args) {
         // Fetch items by criteria example
 //        FetchItemsInput input = new FetchItemsInput();
-//        input.setMode("criteria");
+//        input.setMode("CRITERIA");
 //        input.setRestaurantId("5cef7136-ff4e-418a-ba00-5ef18d67bd43");
 //        input.setCategory("paneer");
-//        input.setTag("dineIn");
+//        input.setTag("");
 //        input.setUserId("9dfcbdb5-aafc-42fe-bef6-c919aabcca66");
 //        System.out.println(new Gson().toJson(new FetchItems().handleRequest(input, null)));
 
 //        // Fetch item by ID example
         FetchItemsInput idInput = new FetchItemsInput();
-        idInput.setMode("byId");
+        idInput.setMode("BYID");
         idInput.setItemId("0ad06ce2-ddf6-431a-9e09-a939e3fdce4b");
         System.out.println(new Gson().toJson(new FetchItems().handleRequest(idInput, null)));
     }
@@ -37,13 +37,16 @@ public class FetchItems implements RequestHandler<FetchItems.FetchItemsInput, Fe
             return new FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
 
-        if ("criteria".equalsIgnoreCase(fetchItemsInput.getMode())) {
-            return fetchItemsByCriteria(fetchItemsInput);
-        } else if ("byId".equalsIgnoreCase(fetchItemsInput.getMode())) {
-            return fetchItemById(fetchItemsInput);
-        } else {
-            return new FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
+        switch(DB_Items.ActionType.getActionType(fetchItemsInput.mode)){
+            case CRITERIA:
+                return fetchItemsByCriteria(fetchItemsInput);
+            case BYID:
+                return fetchItemById(fetchItemsInput);
+            default:
+                return new FetchItemsOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
+
         }
+
     }
 
     private FetchItemsOutput fetchItemsByCriteria(FetchItemsInput fetchItemsInput) {
