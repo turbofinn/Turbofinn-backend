@@ -25,6 +25,42 @@ public class DB_Offers extends DB_DateTable{
     String referenceId;
     String restaurantId;
     String image;
+    String isDeleted = "false";
+
+    public static enum ActionType {
+        CREATE("CREATE"),
+        UPDATE("UPDATE"),
+        DELETE("DELETE"),
+        FETCH("FETCH");
+        private String text;
+
+        private ActionType(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return this.text;
+        }
+
+        public static DB_Offers.ActionType getActionType(String type) {
+            if (type == null) {
+                return null;
+            }
+            switch (type) {
+                case "CREATE":
+                    return DB_Offers.ActionType.CREATE;
+                case "UPDATE":
+                    return DB_Offers.ActionType.UPDATE;
+                case "DELETE":
+                    return DB_Offers.ActionType.DELETE;
+                case "FETCH":
+                    return DB_Offers.ActionType.FETCH;
+                default:
+                    return null;
+            }
+        }
+    }
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
