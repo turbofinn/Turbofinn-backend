@@ -14,12 +14,13 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
     public static void main(String[] args) {
         String request = "{\n" +
-                "    \"tableNo\": \"T002\",\n" +
+                "    \"tableNo\": \"T001\",\n" +
                 "    \"restaurantId\": \"restaurantId123\",\n" +
-                "    \"userId\": \"userId456\",\n" +
+                "    \"userId\": \"userId123\",\n" +
                 "    \"status\": \"Occupied\",\n" +
                 "    \"paymentStatus\": \"Paid\",\n" +
-                "    \"action\": \"UPDATE\"\n" +
+                "    \"action\": \"UPDATE\",\n" +
+                "    \"mobileNo\": \"1234567892\"\n" +
                 "}\n";
         System.out.println(new Gson().toJson(new CreateTable().handleRequest(new Gson().fromJson(request, CreateTableInput.class), null)));
     }
@@ -49,6 +50,7 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
         dbTable.setUserId(input.getUserId());
         dbTable.setStatus(input.getStatus());
         dbTable.setPaymentStatus(input.getPaymentStatus());
+        dbTable.setMobileNo(input.getMobileNo());
 
         try {
             dbTable.save();
@@ -70,6 +72,7 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
             dbTable.setUserId(input.getUserId());
             dbTable.setStatus(input.getStatus());
             dbTable.setPaymentStatus(input.getPaymentStatus());
+            dbTable.setMobileNo(input.getMobileNo());
             dbTable.save();
             return new CreateTableOutput(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE));
         } catch (Exception e) {
@@ -96,6 +99,7 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
         private String status;
         private String paymentStatus;
         private String action;
+        private String mobileNo;
     }
 
     @Getter

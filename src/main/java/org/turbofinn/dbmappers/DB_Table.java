@@ -35,6 +35,9 @@ public class DB_Table {
     @DynamoDBAttribute
     private String paymentStatus;
 
+    @DynamoDBAttribute
+    private String mobileNo;
+
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
         System.out.println("*** Table Saved *** " + this.toString());
