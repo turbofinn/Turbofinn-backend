@@ -50,4 +50,40 @@ public class DB_Payments extends DB_DateTable{
                 .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
         return AWSCredentials.dynamoDBMapper().query(DB_Payments.class, queryExpression);
     }
+
+    public static enum PatmentStatus {
+        CREATED("created"),
+        SUCCESS("success"),
+        PENDING("pending"),
+        FAILED("failed");
+        private String text;
+
+        private PatmentStatus(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return this.text;
+        }
+
+        public static DB_Payments.PatmentStatus getPaymentStatus(String type) {
+            if (type == null) {
+                return null;
+            }
+            switch (type) {
+                case "CREATED":
+                    return PatmentStatus.CREATED;
+                case "SUCCESS":
+                    return PatmentStatus.SUCCESS;
+                case "PENDING":
+                    return PatmentStatus.PENDING;
+                case "FAILED":
+                    return PatmentStatus.FAILED;
+                default:
+                    return null;
+            }
+        }
+
+    }
 }
