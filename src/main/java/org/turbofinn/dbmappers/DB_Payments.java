@@ -1,6 +1,5 @@
 package org.turbofinn.dbmappers;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,14 +50,14 @@ public class DB_Payments extends DB_DateTable{
         return AWSCredentials.dynamoDBMapper().query(DB_Payments.class, queryExpression);
     }
 
-    public static enum PatmentStatus {
+    public static enum PaymentStatus {
         CREATED("created"),
         SUCCESS("success"),
         PENDING("pending"),
         FAILED("failed");
         private String text;
 
-        private PatmentStatus(String text) {
+        private PaymentStatus(String text) {
             this.text = text;
         }
 
@@ -67,19 +66,19 @@ public class DB_Payments extends DB_DateTable{
             return this.text;
         }
 
-        public static DB_Payments.PatmentStatus getPaymentStatus(String type) {
+        public static PaymentStatus getPaymentStatus(String type) {
             if (type == null) {
                 return null;
             }
             switch (type) {
                 case "CREATED":
-                    return PatmentStatus.CREATED;
+                    return PaymentStatus.CREATED;
                 case "SUCCESS":
-                    return PatmentStatus.SUCCESS;
+                    return PaymentStatus.SUCCESS;
                 case "PENDING":
-                    return PatmentStatus.PENDING;
+                    return PaymentStatus.PENDING;
                 case "FAILED":
-                    return PatmentStatus.FAILED;
+                    return PaymentStatus.FAILED;
                 default:
                     return null;
             }

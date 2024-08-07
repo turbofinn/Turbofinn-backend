@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
-import org.turbofinn.components.CreateItems;
 import com.razorpay.*;
 import org.json.JSONObject;
 import org.turbofinn.dbmappers.DB_Payments;
@@ -33,7 +32,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
         if(input == null){
             return new CreatePaymentOrderOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
-        if(StringUtils.isAnyBlank(input.restaurentID,input.userID,input.tableNo)){
+        if(StringUtils.isAnyBlank(input.restaurantID,input.userID,input.tableNo)){
             return new CreatePaymentOrderOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
         if(input.amount<=0){
@@ -56,8 +55,8 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
             System.out.println("Order Amount: " + order.get("amount"));
 
 
-            if(order.get("status").toString().equalsIgnoreCase(DB_Payments.PatmentStatus.CREATED.toString())){
-                new DB_Payments(null,input.restaurentID,order.get("id"),input.tableNo,DB_Payments.PatmentStatus.PENDING.toString(), input.amount, LocalDate.now().toString(),input.userID).save();
+            if(order.get("status").toString().equalsIgnoreCase(DB_Payments.PaymentStatus.CREATED.toString())){
+                new DB_Payments(null,input.restaurantID,order.get("id"),input.tableNo, DB_Payments.PaymentStatus.PENDING.toString(), input.amount, LocalDate.now().toString(),input.userID).save();
                 double amount = Double.parseDouble(order.get("amount").toString())/100;
                 return new CreatePaymentOrderOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),order.get("id"),amount,order.get("status"));
             }
@@ -77,7 +76,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
         public double amount;
         public String currency;
         public String receipt;
-        public String restaurentID;
+        public String restaurantID;
         public String userID;
         public String tableNo;
         public int payment_capture;

@@ -42,8 +42,6 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
             default:
                 return new CreateRestaurantOutput(new Respone(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
-
-
     }
 
     public CreateRestaurant.CreateRestaurantOutput createNewRestaurant(CreateRestaurant.CreateRestaurantInput input){
