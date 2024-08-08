@@ -75,11 +75,6 @@ public class DB_Feedback extends DB_DateTable{
         System.out.println("*** Feedback Saved ***" + new Gson().toJson(this));
     }
 
-    public void delete(String feedbackId) {
-        AWSCredentials.dynamoDBMapper().delete(feedbackId);
-        System.out.println("*** Feedback Deleted ***");
-    }
-
     public static DB_Feedback fetchFeedbackByID(String feedbackId){
         return (feedbackId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Feedback.class, feedbackId);
     }

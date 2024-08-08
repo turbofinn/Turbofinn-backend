@@ -7,24 +7,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.turbofinn.aws.AWSCredentials;
 import org.turbofinn.dbmappers.DB_Feedback;
 import org.turbofinn.dbmappers.DB_Items;
 import org.turbofinn.util.Constants;
 
-import java.io.File;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class CreateFeedback implements RequestHandler<CreateFeedback.CreateFeedbackInput, CreateFeedback.CreateFeedbackOutput> {
 
     public static void main(String[] args) {
         CreateFeedback.CreateFeedbackInput input = new CreateFeedback.CreateFeedbackInput();
+        input.setFeedbackId("d1d07aae-39a9-479e-9ca0-4307c9d28e2f");
         input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
         input.setUserId("bef2578c-8346-4b03-8971-20da77c4bedd");
-        input.setMessage("delicious food");
-        input.setRating("4.5");
-        input.setAction("CREATE");
+        input.setMessage("delicious food and service");
+        input.setRating("4");
+        input.setAction("FETCH");
 
         System.out.println(new Gson().toJson(new CreateFeedback().handleRequest(input,null)));
     }
@@ -66,7 +66,10 @@ public class CreateFeedback implements RequestHandler<CreateFeedback.CreateFeedb
             return new CreateFeedback.CreateFeedbackOutput(new CreateFeedback.Response(Constants.GENERIC_RESPONSE_CODE,"Feedback id is null"), null);
         }
         DB_Feedback dbFeedback = DB_Feedback.fetchFeedbackByID(input.feedbackId);
-        dbFeedback.delete(input.feedbackId);
+        if (dbFeedback == null) {
+            return new CreateFeedback.CreateFeedbackOutput(new CreateFeedback.Response(Constants.GENERIC_RESPONSE_CODE, "Feedback not found"), null);
+        }
+        AWSCredentials.dynamoDBMapper().delete(dbFeedback);
         return new CreateFeedback.CreateFeedbackOutput(new CreateFeedback.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
 
