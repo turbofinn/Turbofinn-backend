@@ -17,14 +17,14 @@ public class FetchUserDetails implements RequestHandler<FetchUserDetails.UserPro
 
     public static void main(String[] args) {
           //Example for fetching user
-         UserProfileInput fetchInput = new UserProfileInput("7269097225", "fetch");
+         UserProfileInput fetchInput = new UserProfileInput("7985257933", "fetch");
          System.out.println(new Gson().toJson(new FetchUserDetails().handleRequest(fetchInput, null)));
 
         // Example for updating user
         DB_User newDetails = new DB_User();
         newDetails.setUserName("Updated Name");
         newDetails.setEmail("updatedemail@example.com");
-        UserProfileInput updateInput = new UserProfileInput("7269097224", "update", newDetails);
+        UserProfileInput updateInput = new UserProfileInput("7985257933", "update", newDetails);
         System.out.println(new Gson().toJson(new FetchUserDetails().handleRequest(updateInput, null)));
     }
 
@@ -72,6 +72,7 @@ public class FetchUserDetails implements RequestHandler<FetchUserDetails.UserPro
 
     @Getter
     @Setter
+    @NoArgsConstructor
     public static class UserProfileInput {
         String mobileNo;
         String action; // "fetch" or "update"
@@ -83,7 +84,7 @@ public class FetchUserDetails implements RequestHandler<FetchUserDetails.UserPro
             this.action = action;
         }
 
-        // Constructor for update action
+      // Constructor for update action
         public UserProfileInput(String mobileNo, String action, DB_User newDetails) {
             this.mobileNo = mobileNo;
             this.action = action;

@@ -102,9 +102,9 @@ public class DB_Items extends DB_DateTable {
         expressionAttributeValues.put(":category", new AttributeValue().withS(category));
 
         DynamoDBQueryExpression<DB_Items> queryExpression = new DynamoDBQueryExpression<DB_Items>()
-                .withIndexName("restaurantId-index")
-                .withKeyConditionExpression("restaurantId = :restaurantId")
-                .withFilterExpression("category = :category")
+                .withIndexName("restaurantId-category-index")
+                .withKeyConditionExpression("restaurantId = :restaurantId and category = :category")
+//                .withFilterExpression("category = :category")
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withConsistentRead(false);
 
@@ -112,16 +112,20 @@ public class DB_Items extends DB_DateTable {
     }
 
     public static List<DB_Items> fetchItemsByRestaurantIDAndTag(String restaurantId, String tag) {
+        if (restaurantId == null || tag == null) {
+            throw new IllegalArgumentException("restaurantId or tag cannot be null");
+        }
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
         expressionAttributeValues.put(":tag", new AttributeValue().withS(tag));
 
         DynamoDBQueryExpression<DB_Items> queryExpression = new DynamoDBQueryExpression<DB_Items>()
-                .withIndexName("restaurantId-index")
-                .withKeyConditionExpression("restaurantId = :restaurantId")
-                .withFilterExpression("tag = :tag")
+                .withIndexName("restaurantId-tag-index")
+                .withKeyConditionExpression("restaurantId = :restaurantId and tag=:tag")
+//                .withFilterExpression("tag = :tag")
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withConsistentRead(false);
+
 
         return AWSCredentials.dynamoDBMapper().query(DB_Items.class, queryExpression);
     }

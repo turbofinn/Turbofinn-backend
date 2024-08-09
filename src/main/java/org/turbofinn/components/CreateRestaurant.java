@@ -14,7 +14,7 @@ import org.turbofinn.util.TFUtils;
 public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateRestaurantInput,CreateRestaurant.CreateRestaurantOutput> {
     public static void main(String[] args) {
         CreateRestaurantInput input = new CreateRestaurantInput();
-        input.setName("Ti");
+        input.setName("Saurabh");
         input.setAddressLineOne("45");
         input.setAddressLineTwo("Devine paradise");
         input.setCity("Gorakhpur");

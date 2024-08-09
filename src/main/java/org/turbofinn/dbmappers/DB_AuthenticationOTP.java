@@ -35,6 +35,7 @@ public class DB_AuthenticationOTP extends DB_DateTable {
     String name;
     String emailId;
     String otp;
+    long expirationTime;
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);

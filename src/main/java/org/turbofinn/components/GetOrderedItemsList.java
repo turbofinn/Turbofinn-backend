@@ -17,9 +17,9 @@ import java.util.List;
 public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.GetOrderdItemsListInput, GetOrderedItemsList.GetOrderdItemsListOutPut> {
     public static void main(String[] args) {
         GetOrderdItemsListInput input = new GetOrderdItemsListInput();
-        input.setUserId("123456user");
-        input.setRestaurantId("restaurantId456");
-        input.setOrderId("4");
+        input.setUserId("userId789");
+        input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
+        input.setOrderId("orderI535366373");
         input.setPaymentStatus("NOTPAID");  // or "paid"
         System.out.println(new Gson().toJson(new GetOrderedItemsList().handleRequest(input,null)));
 
@@ -27,7 +27,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
 
     @Override
     public GetOrderedItemsList.GetOrderdItemsListOutPut handleRequest(GetOrderedItemsList.GetOrderdItemsListInput input, Context context) {
-        if(input==null || input.orderId==null || input.restaurantId==null || input.userId==null){
+        if(input==null || input.restaurantId==null || input.userId==null){
             return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
@@ -35,8 +35,10 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         switch (DB_Order.ActionType.getActionType(input.paymentStatus)){
             case NOTPAID:
                 return fetchOrderedList(input.orderId);
-            default:
+            case PAID:
                 return fetchAllOrderedList(input.userId,input.restaurantId);
+            default:
+                return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
 
@@ -58,6 +60,9 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), allOrderDetails);
     }
     private GetOrderdItemsListOutPut fetchOrderedList(String orderId) {
+        if(orderId==null ){
+            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+        }
         DB_Order dbOrder = DB_Order.fetchOrderByOrderID(orderId);
         if (dbOrder == null) {
             return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);

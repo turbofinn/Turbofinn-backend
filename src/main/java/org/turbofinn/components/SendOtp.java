@@ -11,13 +11,14 @@ import org.turbofinn.dbmappers.DB_AuthenticationOTP;
 import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.util.Constants;
 
+import java.time.Instant;
 import java.util.Random;
 import java.util.UUID;
 
 public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.SendOtpOutput> {
     public static void main(String[] args) {
         SendOtpInput sendOtpInput = new SendOtpInput();
-        sendOtpInput.setMobileNo("7985157933");
+        sendOtpInput.setMobileNo("7985257933");
         System.out.println(new Gson().toJson(new SendOtp().handleRequest(sendOtpInput,null)));
     }
 
@@ -30,12 +31,15 @@ public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.Sen
 
         DB_AuthenticationOTP a_otp = DB_AuthenticationOTP.fetchOtpByMobileNo(input.mobileNo);
         if (a_otp==null){
-            String otp = String.format("%04d", new Random().nextInt(10000));
+//            String otp = String.format("%04d", new Random().nextInt(10000));
+            String otp="1234";
+            long expirationTime = Instant.now().getEpochSecond() + 300;
             DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
             dbAuthenticationOTP.setMobileNo(input.mobileNo);
             dbAuthenticationOTP.setOtp(otp);
             dbAuthenticationOTP.setName(input.userName);
             dbAuthenticationOTP.setEmailId(input.emailId);
+            dbAuthenticationOTP.setExpirationTime(expirationTime);
             dbAuthenticationOTP.save();
             return new SendOtpOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),otp);
         }
