@@ -13,13 +13,14 @@ import org.turbofinn.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.GetOrderdItemsListInput, GetOrderedItemsList.GetOrderdItemsListOutPut> {
     public static void main(String[] args) {
         GetOrderdItemsListInput input = new GetOrderdItemsListInput();
         input.setUserId("userId789");
         input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
-        input.setOrderId("orderI535366373");
+        input.setOrderIds(List.of("2a72ea99-a2d0-4175-9c6a-fbc60e08ba84", "98546835-c4c4-490c-9a21-44faadbef6a5"));
         input.setPaymentStatus("NOTPAID");  // or "paid"
         System.out.println(new Gson().toJson(new GetOrderedItemsList().handleRequest(input,null)));
 
@@ -34,7 +35,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
 
         switch (DB_Order.ActionType.getActionType(input.paymentStatus)){
             case NOTPAID:
-                return fetchOrderedList(input.orderId);
+                return fetchOrderedList(input.orderIds);
             case PAID:
                 return fetchAllOrderedList(input.userId,input.restaurantId);
             default:
@@ -59,19 +60,27 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         }
         return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), allOrderDetails);
     }
-    private GetOrderdItemsListOutPut fetchOrderedList(String orderId) {
+    private GetOrderdItemsListOutPut fetchOrderedList(List<String> orderId) {
         if(orderId==null ){
             return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
-        DB_Order dbOrder = DB_Order.fetchOrderByOrderID(orderId);
-        if (dbOrder == null) {
+        List<DB_Order> dbOrders = new ArrayList<>();
+        dbOrders = orderId.stream()
+                .map(DB_Order::fetchOrderByOrderID)
+                .filter(dbOrder -> dbOrder != null)
+                .collect(Collectors.toList());
+        if (dbOrders == null) {
             return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
         List<OrderedItemDetails> orderedItemDetails = new ArrayList<>();
-        for (DB_Order.OrderList orderList : dbOrder.getOrderLists()) {
-            DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
-            if (item != null) {
-                orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+        for (DB_Order order : dbOrders) {
+            if (order.getOrderLists() != null) {
+                for (DB_Order.OrderList orderList : order.getOrderLists()) {
+                    DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
+                    if (item != null) {
+                        orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+                    }
+                }
             }
         }
         return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), orderedItemDetails);
@@ -88,7 +97,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
     @NoArgsConstructor
     @AllArgsConstructor
     public static class GetOrderdItemsListInput {
-        public String orderId;
+        public List<String> orderIds;
         public String restaurantId;
         public String userId;
         public String paymentStatus;
