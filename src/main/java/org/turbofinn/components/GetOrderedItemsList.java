@@ -46,7 +46,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
     }
 
     private GetOrderdItemsListOutPut fetchAllOrderedList(String userId, String restaurantId) {
-        List<DB_Order> dbOrders = DB_Order.fetchOrdersByUserID(userId);
+        List<DB_Order> dbOrders = DB_Order.fetchAllItemsByUserId(userId);
         List<OrderedItemDetails> allOrderDetails = new ArrayList<>();
         for (DB_Order order : dbOrders) {
             if (order.getOrderLists() != null) {

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.aws.AWSCredentials;
 import org.turbofinn.dbmappers.DB_Feedback;
-import org.turbofinn.dbmappers.DB_Items;
 import org.turbofinn.util.Constants;
 
 import java.util.Date;
