@@ -35,17 +35,19 @@ public class DB_AuthenticationOTP extends DB_DateTable {
     String name;
     String emailId;
     String otp;
-    long expirationTime;
+
+
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
         System.out.println("*** AuthenticationOTP Saved *** " + new Gson().toJson(this));
     }
 
-    public static DB_AuthenticationOTP fetchOtpByDeviceId(String deviceId){
+    public static DB_AuthenticationOTP fetchOtpByDeviceId(String deviceId) {
         return (deviceId == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_AuthenticationOTP.class, deviceId);
 
     }
+
     public static DB_AuthenticationOTP fetchOtpByMobileNo(String mobileNo) {
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":mobileNo", new AttributeValue().withS(mobileNo));
@@ -54,6 +56,16 @@ public class DB_AuthenticationOTP extends DB_DateTable {
                 .withKeyConditionExpression("mobileNo = :mobileNo")
                 .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
         List<DB_AuthenticationOTP> list = AWSCredentials.dynamoDBMapper().query(DB_AuthenticationOTP.class, queryExpression);
-        return !list.isEmpty()?list.get(0):null;
+        return !list.isEmpty() ? list.get(0) : null;
+    }
+
+    public static void deleteOtp(DB_AuthenticationOTP otpToDelete) {
+
+        if (otpToDelete != null) {
+            AWSCredentials.dynamoDBMapper().delete(otpToDelete);
+            System.out.println("*** AuthenticationOTP Deleted *** " + new Gson().toJson(otpToDelete));
+        } else {
+            System.out.println("*** OTP Not Found " + " ***");
+        }
     }
 }

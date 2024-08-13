@@ -14,7 +14,7 @@ import org.turbofinn.util.Constants;
 public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,VerifyOTP.VerifyOtpOutput> {
     public static void main(String[] args) {
         VerifyOtpInput input = new VerifyOtpInput();
-        input.setMobileNo("7985257933");
+        input.setMobileNo("7985159633");
         input.setOtp("1234");
         System.out.println(new Gson().toJson(new VerifyOTP().handleRequest(input,null)));
 
@@ -22,7 +22,7 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
     @Override
     public VerifyOTP.VerifyOtpOutput handleRequest(VerifyOTP.VerifyOtpInput input, Context context) {
         if(input==null || input.getOtp()==null || input.getMobileNo()==null){
-            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
+            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
 
         }
 
@@ -31,23 +31,28 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
         System.out.println(new Gson().toJson(otp));
         if(otp == null ){
 
-            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
+            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
         if(otp.getOtp().equalsIgnoreCase(input.otp)){
 
             DB_User dbUser = DB_User.fetchUserByMobileNo(input.mobileNo);
+
             if(dbUser==null){
                 DB_User user = new DB_User();
                 user.setMobileNo(input.mobileNo);
                 user.save();
-                System.out.println("User is created");
-            }
 
-            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
+                System.out.println("User is created"+ user.getUserId());
+                DB_AuthenticationOTP.deleteOtp(otp);
+                return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),user.getUserId());
+            }
+            DB_AuthenticationOTP.deleteOtp(otp);
+
+            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbUser.getUserId());
         }
         else{
 
-            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
+            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
 
@@ -60,6 +65,7 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
     public static class VerifyOtpOutput {
         public Response response;
+        public String userId;
 
     }
 

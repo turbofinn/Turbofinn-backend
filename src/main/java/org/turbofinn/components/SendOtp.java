@@ -18,7 +18,7 @@ import java.util.UUID;
 public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.SendOtpOutput> {
     public static void main(String[] args) {
         SendOtpInput sendOtpInput = new SendOtpInput();
-        sendOtpInput.setMobileNo("7985257933");
+        sendOtpInput.setMobileNo("7985159633");
         System.out.println(new Gson().toJson(new SendOtp().handleRequest(sendOtpInput,null)));
     }
 
@@ -33,13 +33,13 @@ public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.Sen
         if (a_otp==null){
 //            String otp = String.format("%04d", new Random().nextInt(10000));
             String otp="1234";
-            long expirationTime = Instant.now().getEpochSecond() + 300;
+
             DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
             dbAuthenticationOTP.setMobileNo(input.mobileNo);
             dbAuthenticationOTP.setOtp(otp);
             dbAuthenticationOTP.setName(input.userName);
             dbAuthenticationOTP.setEmailId(input.emailId);
-            dbAuthenticationOTP.setExpirationTime(expirationTime);
+
             dbAuthenticationOTP.save();
             return new SendOtpOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),otp);
         }
