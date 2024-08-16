@@ -29,7 +29,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
     @Override
     public GetOrderedItemsList.GetOrderdItemsListOutPut handleRequest(GetOrderedItemsList.GetOrderdItemsListInput input, Context context) {
         if(input==null || input.restaurantId==null || input.userId==null){
-            return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+            return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null,0);
         }
 
 
@@ -39,7 +39,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
             case PAID:
                 return fetchAllOrderedList(input.userId,input.restaurantId);
             default:
-                return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+                return new GetOrderedItemsList.GetOrderdItemsListOutPut(new GetOrderedItemsList.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null,0);
         }
 
 
@@ -49,47 +49,50 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         List<DB_Order> dbOrders = DB_Order.fetchAllItemsByUserId(userId);
         List<OrderedItemDetails> allOrderDetails = new ArrayList<>();
         for (DB_Order order : dbOrders) {
-            if (order.getOrderLists() != null) {
+            if (order.getOrderLists() != null && "PAID".equalsIgnoreCase(order.getPaymentStatus())) {
                 for (DB_Order.OrderList orderList : order.getOrderLists()) {
                     DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
                     if (item != null) {
-                        allOrderDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+                        allOrderDetails.add(new OrderedItemDetails(item, orderList.getQuantity(),item.getPrice()*orderList.getQuantity()));
                     }
                 }
             }
         }
-        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), allOrderDetails);
+        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), allOrderDetails,0);
     }
     private GetOrderdItemsListOutPut fetchOrderedList(List<String> orderId) {
         if(orderId==null ){
-            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null,0);
         }
         List<DB_Order> dbOrders = new ArrayList<>();
         dbOrders = orderId.stream()
                 .map(DB_Order::fetchOrderByOrderID)
-                .filter(dbOrder -> dbOrder != null)
+                .filter(dbOrder -> dbOrder != null && "NOTPAID".equalsIgnoreCase(dbOrder.getPaymentStatus()))
                 .collect(Collectors.toList());
         if (dbOrders == null) {
-            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
+            return new GetOrderdItemsListOutPut(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null,0);
         }
         List<OrderedItemDetails> orderedItemDetails = new ArrayList<>();
+        double totalAmount =0;
         for (DB_Order order : dbOrders) {
             if (order.getOrderLists() != null) {
                 for (DB_Order.OrderList orderList : order.getOrderLists()) {
                     DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
                     if (item != null) {
-                        orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity()));
+                        orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity(), item.getPrice()*orderList.getQuantity()));
+                        totalAmount+=item.getPrice()*orderList.getQuantity();
                     }
                 }
             }
         }
-        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), orderedItemDetails);
+        return new GetOrderdItemsListOutPut(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), orderedItemDetails,totalAmount);
     }
 
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
     public static class GetOrderdItemsListOutPut {
         public Response response;
         public List<OrderedItemDetails> orderList;
+        double totalAmount;
     }
 
     @Setter
@@ -108,6 +111,7 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         int responseCode;
         String message;
 
+
     }
     @Setter
     @Getter
@@ -116,5 +120,6 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
     public static class OrderedItemDetails {
         public DB_Items item;
         public int quantity;
+        public double price;
     }
 }
