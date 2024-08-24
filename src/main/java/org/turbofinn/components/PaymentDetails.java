@@ -65,6 +65,7 @@ public class PaymentDetails implements RequestHandler<PaymentDetails.CreatePayme
         Double paymentAmount;
         String paymentDate;
         String userId;
+        String paymentMode;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
