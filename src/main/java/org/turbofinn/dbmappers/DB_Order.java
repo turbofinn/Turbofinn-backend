@@ -29,8 +29,7 @@ public class DB_Order extends DB_DateTable {
     String paymentStatus;
     double totalAmount;
 
-    @DynamoDBAttribute
-    List<OrderList> orderLists;
+    String orderLists;
     String orderStatus;
     String customerRequest;
     String customerFeedback;

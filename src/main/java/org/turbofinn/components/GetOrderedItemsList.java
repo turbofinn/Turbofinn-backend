@@ -3,6 +3,7 @@ package org.turbofinn.components;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -49,8 +50,9 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         List<DB_Order> dbOrders = DB_Order.fetchAllItemsByUserId(userId);
         List<OrderedItemDetails> allOrderDetails = new ArrayList<>();
         for (DB_Order order : dbOrders) {
-            if (order.getOrderLists() != null && "PAID".equalsIgnoreCase(order.getPaymentStatus())) {
-                for (DB_Order.OrderList orderList : order.getOrderLists()) {
+            List<DB_Order.OrderList> orderLists = new Gson().fromJson(order.getOrderLists(), new TypeToken<ArrayList<DB_Order.OrderList>>(){}.getType());
+            if (orderLists != null && "PAID".equalsIgnoreCase(order.getPaymentStatus())) {
+                for (DB_Order.OrderList orderList : orderLists) {
                     DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
                     if (item != null) {
                         allOrderDetails.add(new OrderedItemDetails(item, orderList.getQuantity(),item.getPrice()*orderList.getQuantity()));
@@ -75,8 +77,9 @@ public class GetOrderedItemsList implements RequestHandler<GetOrderedItemsList.G
         List<OrderedItemDetails> orderedItemDetails = new ArrayList<>();
         double totalAmount =0;
         for (DB_Order order : dbOrders) {
-            if (order.getOrderLists() != null) {
-                for (DB_Order.OrderList orderList : order.getOrderLists()) {
+            List<DB_Order.OrderList> orderLists = new Gson().fromJson(order.getOrderLists(), new TypeToken<ArrayList<DB_Order.OrderList>>(){}.getType());
+            if (orderLists != null) {
+                for (DB_Order.OrderList orderList : orderLists) {
                     DB_Items item = DB_Items.fetchItemByID(orderList.getItemId());
                     if (item != null) {
                         orderedItemDetails.add(new OrderedItemDetails(item, orderList.getQuantity(), item.getPrice()*orderList.getQuantity()));
