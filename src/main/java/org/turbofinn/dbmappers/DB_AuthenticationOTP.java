@@ -21,7 +21,7 @@ public class DB_AuthenticationOTP extends DB_DateTable {
         DB_AuthenticationOTP dbAuthenticationOTP = new DB_AuthenticationOTP();
         dbAuthenticationOTP.setDeviceId(UUID.randomUUID().toString());
         dbAuthenticationOTP.setMobileNo("8960880615");
-        dbAuthenticationOTP.setName("Gauurav Dingh");
+        dbAuthenticationOTP.setName("Gaurav Singh");
         dbAuthenticationOTP.setOtp("5678");
         dbAuthenticationOTP.setEmailId("gaurab@turbofinn.com");
         dbAuthenticationOTP.save();

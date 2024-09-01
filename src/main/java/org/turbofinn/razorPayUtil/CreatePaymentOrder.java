@@ -56,7 +56,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
 
 
             if(order.get("status").toString().equalsIgnoreCase(DB_Payments.PaymentStatus.CREATED.toString())){
-                new DB_Payments(null,input.restaurantID,order.get("id"),input.tableNo, DB_Payments.PaymentStatus.PENDING.toString(), input.amount, LocalDate.now().toString(),input.userID).save();
+                new DB_Payments(null,input.restaurantID,order.get("id"),input.tableNo, DB_Payments.PaymentStatus.PENDING.toString(), input.amount, LocalDate.now().toString(),input.userID, input.paymentMode).save();
                 double amount = Double.parseDouble(order.get("amount").toString())/100;
                 return new CreatePaymentOrderOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),order.get("id"),amount,order.get("status"));
             }
@@ -80,6 +80,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
         public String userID;
         public String tableNo;
         public int payment_capture;
+        public String paymentMode;
     }
 
     @Getter@Setter@AllArgsConstructor
