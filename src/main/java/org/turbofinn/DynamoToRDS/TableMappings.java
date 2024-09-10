@@ -52,7 +52,7 @@ public class TableMappings {
                 },
                 new String[]{}
         ));
-        mappings.put("Orders", new TableMapping(
+        mappings.put("Order", new TableMapping(
                 "Orders",
                 "orderId",
                 new String[]{
@@ -106,7 +106,7 @@ public class TableMappings {
                 },
                 new String[]{}
         ));
-        mappings.put("Tables", new TableMapping(
+        mappings.put("Table", new TableMapping(
                 "Tables",
                 "tableId",
                 new String[]{

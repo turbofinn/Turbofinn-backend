@@ -43,7 +43,8 @@ public class DB_Items extends DB_DateTable {
         UPDATE("UPDATE"),
         DELETE("DELETE"),
         CRITERIA("CRITERIA"),
-        BYID("BYID");
+        BYID("BYID"),
+        BYRESTAURANTID("BYRESTAURANTID");
         private String text;
 
         private ActionType(String text) {
@@ -70,6 +71,8 @@ public class DB_Items extends DB_DateTable {
                     return DB_Items.ActionType.CRITERIA;
                 case "BYID":
                     return DB_Items.ActionType.BYID;
+                case "BYRESTAURANTID":
+                    return ActionType.BYRESTAURANTID;
                 default:
                     return null;
             }

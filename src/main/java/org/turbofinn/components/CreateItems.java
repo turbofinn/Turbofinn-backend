@@ -14,8 +14,6 @@ import org.turbofinn.util.Constants;
 
 
 
-import java.io.File;
-import java.util.UUID;
 
 public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,CreateItems.CreateItemsOutput> {
 
@@ -106,15 +104,15 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
 
 
         //logic for uploading image in s3
-        String bucketName = "turbo-treats";
-        String uuid = UUID.randomUUID().toString();
-        String imageKey = "Images/" + uuid + ".jpg";
-        File imageFile = new File(createItemsInput.getItemPicture());
-
-        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
-        if (imageUrl == null) {
-            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
-        }
+//        String bucketName = "turbo-treats";
+//        String uuid = UUID.randomUUID().toString();
+//        String imageKey = "Images/" + uuid + ".jpg";
+//        File imageFile = new File(createItemsInput.getItemPicture());
+//
+//        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
+//        if (imageUrl == null) {
+//            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
+//        }
 
 
         DB_Items dbItems = DB_Items.fetchItemByID(createItemsInput.itemId);
@@ -128,13 +126,14 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setDescription(createItemsInput.getDescription());
         dbItems.setPrice(createItemsInput.getPrice());
         dbItems.setEta(createItemsInput.getEta());
-        dbItems.setItemPicture(uuid);
+        dbItems.setItemPicture(createItemsInput.getItemPicture());
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
 
     }
 
     private CreateItemsOutput createNewItem(CreateItemsInput createItemsInput) {
+        System.out.println("Input "+ new Gson().toJson(createItemsInput));
         if(createItemsInput.getName()==null){
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide Food name"));
         }
@@ -163,16 +162,15 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set the food picture"));
         }
 
-        //logic for uploading image in s3
-        String bucketName = "turbo-treats";
-        String uuid = UUID.randomUUID().toString();
-        String imageKey = "Images/" + uuid + ".jpg";
-        File imageFile = new File(createItemsInput.getItemPicture());
-
-        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
-        if (imageUrl == null) {
-            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
-        }
+//        //logic for uploading image in s3
+//        String bucketName = "turbo-treats";
+//        String uuid = UUID.randomUUID().toString();
+//        String imageKey = "Images/" + uuid + ".jpg";
+//        File imageFile = new File(createItemsInput.getItemPicture());
+//        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
+//        if (imageUrl == null) {
+//            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
+//        }
 
 
         DB_Items dbItems = new DB_Items();
@@ -186,7 +184,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setDescription(createItemsInput.getDescription());
         dbItems.setPrice(createItemsInput.getPrice());
         dbItems.setEta(createItemsInput.getEta());
-        dbItems.setItemPicture(uuid);
+        dbItems.setItemPicture(createItemsInput.getItemPicture());
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
 

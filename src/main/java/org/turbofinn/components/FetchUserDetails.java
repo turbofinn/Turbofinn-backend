@@ -16,15 +16,17 @@ import java.util.Date;
 public class FetchUserDetails implements RequestHandler<FetchUserDetails.UserProfileInput, FetchUserDetails.UserProfileOutput> {
 
     public static void main(String[] args) {
-          //Example for fetching user
-         UserProfileInput fetchInput = new UserProfileInput("7985257933", "fetch");
-         System.out.println(new Gson().toJson(new FetchUserDetails().handleRequest(fetchInput, null)));
+//          //Example for fetching user
+//         UserProfileInput fetchInput = new UserProfileInput("7985257933", "fetch");
+//         System.out.println(new Gson().toJson(new FetchUserDetails().handleRequest(fetchInput, null)));
 
         // Example for updating user
         DB_User newDetails = new DB_User();
         newDetails.setUserName("Updated Name");
         newDetails.setEmail("updatedemail@example.com");
-        UserProfileInput updateInput = new UserProfileInput("7985257933", "update", newDetails);
+        newDetails.setGender("male");
+        newDetails.setDob("2024-06-11");
+        UserProfileInput updateInput = new UserProfileInput("7845128965", "update", newDetails);
         System.out.println(new Gson().toJson(new FetchUserDetails().handleRequest(updateInput, null)));
     }
 
