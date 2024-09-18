@@ -19,7 +19,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
 
     public static void main(String[] args) {
         CreateItemsInput createItemsInput = new CreateItemsInput();
-        createItemsInput.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
+        createItemsInput.setRestaurantId("939fa7e0-23d8-42a9-9a4e-c2f72eb8c0da");
         createItemsInput.setItemId("bef2578c-8346-4b03-8971-20da77c4bedd");
         createItemsInput.setName("paneer chili dusre vale ka2");
         createItemsInput.setType("noodels");
@@ -31,7 +31,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         createItemsInput.setDescription("very delicious ,somkey hot ,korean noodles");
         createItemsInput.setPrice(150.0);
         createItemsInput.setEta("dineIn");
-        createItemsInput.setItemPicture("C:\\Users\\saurabh\\Downloads\\sushi_platter.jpg");
+        createItemsInput.setItemPicture("sushi_platter.jpg");
 
         System.out.println(new Gson().toJson(new CreateItems().handleRequest(createItemsInput,null)));
 

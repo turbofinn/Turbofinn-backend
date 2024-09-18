@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Restaurant;
+import org.turbofinn.dbmappers.DB_Table;
 import org.turbofinn.util.Constants;
 import org.turbofinn.util.TFUtils;
 
@@ -15,14 +16,15 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
     public static void main(String[] args) {
         CreateRestaurantInput input = new CreateRestaurantInput();
         input.setName("Saurabh");
-        input.setAddressLineOne("45");
-        input.setAddressLineTwo("Devine paradise");
+        input.setAddress("Devine paradise");
         input.setCity("Gorakhpur");
         input.setState("Uttar Pradesh");
         input.setPincode("221404");
         input.setEmailId("Tiwari@gamil.com");
         input.setContactNo("7275583550");
         input.setRestaurantAccountNo("785412985632");
+        input.setTableCount("10");
+        input.setLogo("ggf.jpg");
         input.setAction("CREATE");
         System.out.println(new Gson().toJson(new CreateRestaurant().handleRequest(input,null)));
     }
@@ -49,15 +51,34 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         DB_Restaurant dbRestaurant = new DB_Restaurant();
         dbRestaurant.setRestaurantId(input.getRestaurantId());
         dbRestaurant.setName(input.getName());
-        dbRestaurant.setAddressLineOne(input.getAddressLineOne());
-        dbRestaurant.setAddressLineTwo(input.getAddressLineTwo());
+        dbRestaurant.setAddress(input.getAddress());
         dbRestaurant.setCity(input.getCity());
         dbRestaurant.setState(input.getState());
         dbRestaurant.setPincode(input.getPincode());
         dbRestaurant.setEmailId(input.getEmailId());
         dbRestaurant.setContactNo(input.getContactNo());
+        dbRestaurant.setTableCount(input.getTableCount());
+        dbRestaurant.setLogo(input.getLogo());
         dbRestaurant.setRestaurantAccountNo(TFUtils.generateRestaurantAccountNo(Constants.RESTAURANT_ACCOUNT_NO_LENGTH));
         dbRestaurant.save();
+
+        // Validate the table count
+        int tableCount;
+        try {
+            tableCount = Integer.parseInt(input.getTableCount());
+        } catch (NumberFormatException e) {
+            return new CreateRestaurantOutput(new Respone(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid table count"), null);
+        }
+
+        // Create tables based on the tableCount and save in the Tables table
+        for (int i = 1; i <= tableCount; i++) {
+            DB_Table table = new DB_Table();
+            table.setTableNo(String.valueOf(i));  // Table number corresponds to the loop index
+            table.setRestaurantId(dbRestaurant.getRestaurantId());
+            table.setStatus("unoccupied");
+            table.save();  // Save each table
+        }
+
         return new CreateRestaurantOutput(new Respone(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbRestaurant);
     }
 
@@ -70,13 +91,14 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.restaurantId);
         dbRestaurant.setContactNo(input.contactNo);
         dbRestaurant.setName(input.name);
-        dbRestaurant.setAddressLineOne(input.addressLineOne);
-        dbRestaurant.setAddressLineTwo(input.addressLineTwo);
+        dbRestaurant.setAddress(input.getAddress());
         dbRestaurant.setCity(input.city);
         dbRestaurant.setState(input.state);
         dbRestaurant.setPincode(input.pincode);
         dbRestaurant.setEmailId(input.emailId);
         dbRestaurant.setContactNo(input.contactNo);
+        dbRestaurant.setTableCount(input.getTableCount());
+        dbRestaurant.setLogo(input.getLogo());
         dbRestaurant.save();
         return new CreateRestaurantOutput(
                 new Respone(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbRestaurant);
@@ -86,8 +108,7 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
     public static class CreateRestaurantInput {
         public String restaurantId;
         public String name;
-        public String addressLineOne;
-        public String addressLineTwo;
+        public String address;
         public String city;
         public String state;
         public String pincode;
@@ -95,6 +116,8 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         public String contactNo;
         public String restaurantAccountNo;
         public String action;
+        public String tableCount;
+        public String logo;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
