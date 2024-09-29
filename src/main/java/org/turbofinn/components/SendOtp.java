@@ -18,7 +18,7 @@ import java.util.UUID;
 public class SendOtp implements RequestHandler<SendOtp.SendOtpInput, SendOtp.SendOtpOutput> {
     public static void main(String[] args) {
         SendOtpInput sendOtpInput = new SendOtpInput();
-        sendOtpInput.setMobileNo("7985159633");
+        sendOtpInput.setMobileNo("7985159933");
         System.out.println(new Gson().toJson(new SendOtp().handleRequest(sendOtpInput,null)));
     }
 

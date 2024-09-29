@@ -45,7 +45,7 @@ public class DB_Config extends DB_DateTable {
         System.out.println("*** Config is saved  *** " + new Gson().toJson(this));
     }
 
-    public DB_Config fetchByKey(String key){
+    public static DB_Config fetchByKey(String key){
         return (key == null) ? null : AWSCredentials.dynamoDBMapper().load(DB_Config.class,key);
     }
 }

@@ -8,14 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_AuthenticationOTP;
+import org.turbofinn.dbmappers.DB_Table;
 import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.util.Constants;
 
 public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,VerifyOTP.VerifyOtpOutput> {
     public static void main(String[] args) {
         VerifyOtpInput input = new VerifyOtpInput();
-        input.setMobileNo("7985159633");
+        input.setMobileNo("7985159933");
         input.setOtp("1234");
+        input.setRestaurantId("939fa7e0-23d8-42a9-9a4e-c2f72eb8c0da");
+        input.setTableNo("9");
         System.out.println(new Gson().toJson(new VerifyOTP().handleRequest(input,null)));
 
     }
@@ -23,6 +26,10 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
     public VerifyOTP.VerifyOtpOutput handleRequest(VerifyOTP.VerifyOtpInput input, Context context) {
         if(input==null || input.getOtp()==null || input.getMobileNo()==null){
             return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
+
+        }
+        if(input.tableNo==null || input.getRestaurantId()==null){
+            return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Please give valid table no. and restaurant id"),null);
 
         }
 
@@ -43,8 +50,30 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
                 user.save();
 
                 System.out.println("User is created"+ user.getUserId());
+
+                DB_Table dbTable = DB_Table.fetchByTableNo(input.tableNo, input.restaurantId);
+                if(dbTable==null){
+                    return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"No table found"),null);
+                }
+                else{
+                    dbTable.setStatus("occupied");
+                    dbTable.setUserId(user.getUserId());
+                    dbTable.setMobileNo(user.getMobileNo());
+                    dbTable.save();
+                }
+
                 DB_AuthenticationOTP.deleteOtp(otp);
                 return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),user.getUserId());
+            }
+            DB_Table dbTable = DB_Table.fetchByTableNo(input.tableNo, input.restaurantId);
+            if(dbTable==null){
+                return new VerifyOTP.VerifyOtpOutput(new VerifyOTP.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"No table found"),null);
+            }
+            else{
+                dbTable.setStatus("occupied");
+                dbTable.setUserId(dbUser.getUserId());
+                dbTable.setMobileNo(dbUser.getMobileNo());
+                dbTable.save();
             }
             DB_AuthenticationOTP.deleteOtp(otp);
 
@@ -73,6 +102,8 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
     public static class VerifyOtpInput {
         public String mobileNo;
         public String otp;
+        public String restaurantId;
+        public String tableNo;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor

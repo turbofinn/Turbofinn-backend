@@ -70,6 +70,7 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
                     break;
                 case "ITEM_PIC":
                     folderName="Images/";
+                    break;
                 default:
                     folderName="";
                     break;

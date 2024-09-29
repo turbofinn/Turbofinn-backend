@@ -2,6 +2,7 @@ package org.turbofinn.components;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,15 @@ import org.turbofinn.dbmappers.DB_Restaurant;
 import org.turbofinn.util.Constants;
 
 public class FetchRestaurant implements RequestHandler<FetchRestaurant.FetchRestaurantInput, FetchRestaurant.FetchRestaurantOutput> {
+
+    public static void main(String[] args) {
+        FetchRestaurantInput input = new FetchRestaurantInput();
+        input.setMobileNo("7275583550");
+        System.out.println(new Gson().toJson(new FetchRestaurant().handleRequest(input,null)));
+    }
+
+
+
     @Override
     public FetchRestaurant.FetchRestaurantOutput handleRequest(FetchRestaurant.FetchRestaurantInput input, Context context) {
 
@@ -24,13 +34,14 @@ public class FetchRestaurant implements RequestHandler<FetchRestaurant.FetchRest
         RestaurantDetails restaurantDetails = new RestaurantDetails();
         restaurantDetails.setRestaurantId(restaurant.getRestaurantId());
         restaurantDetails.setName(restaurant.getName());
-        restaurantDetails.setAddressLineOne(restaurant.getAddressLineOne());
-        restaurantDetails.setAddressLineTwo(restaurant.getAddressLineTwo());
+        restaurantDetails.setAddress(restaurant.getAddress());
         restaurantDetails.setCity(restaurant.getCity());
         restaurantDetails.setState(restaurant.getState());
         restaurantDetails.setPincode(restaurant.getPincode());
         restaurantDetails.setEmailId(restaurant.getEmailId());
         restaurantDetails.setContactNo(restaurant.getContactNo());
+        restaurantDetails.setTableCount(restaurant.getTableCount());
+        restaurantDetails.setLogo(restaurant.getLogo());
         restaurantDetails.setRestaurantAccountNo(restaurant.getRestaurantAccountNo());
         restaurantDetails.setStatus(restaurant.getStatus());
 
@@ -39,33 +50,34 @@ public class FetchRestaurant implements RequestHandler<FetchRestaurant.FetchRest
 
 
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
-    public class FetchRestaurantInput {
+    public static class FetchRestaurantInput {
         public String mobileNo;
     }
 
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
-    public class RestaurantDetails{
+    public static class RestaurantDetails{
         String restaurantId;
         String name;
-        String addressLineOne;
-        String addressLineTwo;
+        String address;
         String city;
         String state;
         String pincode;
         String emailId;
         String contactNo;
         String restaurantAccountNo;
+        String tableCount;
+        String logo;
         String status;
     }
 
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
-    public class FetchRestaurantOutput {
+    public static class FetchRestaurantOutput {
         public Response response;
         public RestaurantDetails restaurantDetails;
 
     }
     @Setter@Getter@NoArgsConstructor@AllArgsConstructor
-    public class Response{
+    public static class Response{
         public int responseCode;
         public String message;
     }
