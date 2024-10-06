@@ -12,16 +12,18 @@ import org.turbofinn.dbmappers.DB_Feedback;
 import org.turbofinn.dbmappers.DB_Stock;
 import org.turbofinn.util.Constants;
 
+import java.util.List;
+
 public class StockDetails implements RequestHandler<StockDetails.StockInput, StockDetails.StockOutput> {
 
     public static void main(String[] args) {
         StockDetails.StockInput input = new StockDetails.StockInput();
-        input.setStockId("d1d07aae-39a9-479e-9ca0-4307c9d28e2f");
+        input.setStockId("479e-9ca0-4307c9d28e2f");
         input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
         input.setName("milk");
         input.setQuantity("2");
         input.setUnit("4");
-        input.setAction("CREATE");
+        input.setAction("FETCH");
         System.out.println(new Gson().toJson(new StockDetails().handleRequest(input,null)));
     }
 
@@ -54,7 +56,7 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
             case DELETE:
                 return deleteStock(input);
             case FETCH:
-                return fetchStock(input);
+                return fetchAllStock(input);
             default:
                 return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
@@ -84,7 +86,7 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         dbStock.setQuantity(input.getQuantity());
         dbStock.setUnit(input.getUnit());
         dbStock.save();
-        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbStock);
+        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
 
     private StockDetails.StockOutput updateStock(StockDetails.StockInput input) {
@@ -98,7 +100,7 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         dbStock.setQuantity(input.getQuantity());
         dbStock.setUnit(input.getUnit());
         dbStock.save();
-        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbStock);
+        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
 
     private StockDetails.StockOutput deleteStock(StockDetails.StockInput input) {
@@ -113,11 +115,11 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
 
-    private StockDetails.StockOutput fetchStock(StockDetails.StockInput input) {
+    private StockDetails.StockOutput fetchAllStock(StockDetails.StockInput input ) {
         if (input.getStockId() == null) {
-            return new StockDetails.StockOutput(new StockDetails.Response(Constants.GENERIC_RESPONSE_CODE,"Please provide stock id"), null);
+            return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
-        DB_Stock stock = DB_Stock.fetchStockByID(input.getStockId());
+        List<DB_Stock> stock = DB_Stock.fetchStocksByRestaurantID(input.getRestaurantId());
 
         if (stock == null) {
             return new StockDetails.StockOutput(new StockDetails.Response(Constants.GENERIC_RESPONSE_CODE,"Stock not found"), null);
@@ -147,6 +149,6 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
     public static class StockOutput {
         public StockDetails.Response response;
-        DB_Stock stocks;
+        List<DB_Stock> stocks;
     }
 }
