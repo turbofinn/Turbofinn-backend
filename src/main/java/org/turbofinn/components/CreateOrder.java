@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Order;
+import org.turbofinn.enums.OrderStatus;
 import org.turbofinn.util.Constants;
 
 import java.util.ArrayList;
@@ -91,7 +92,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         }.getType());
         dbOrder.setOrderLists(new Gson().toJson(orderLists));
 
-        dbOrder.setOrderStatus(createOrderInput.getOrderStatus());
+        dbOrder.setOrderStatus(OrderStatus.PENDING.toString());
         dbOrder.setCustomerRequest(createOrderInput.getCustomerRequest());
         dbOrder.setCustomerFeedback(createOrderInput.getCustomerFeedback());
         dbOrder.setCustomerRating(createOrderInput.getCustomerRating());
