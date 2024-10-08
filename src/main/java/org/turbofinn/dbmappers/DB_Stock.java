@@ -26,6 +26,11 @@ public class DB_Stock extends DB_DateTable {
     String name;
     String quantity;
     String unit;
+    String unitPrice;
+    String totalPrice;
+    String paymentStatus;
+    String paymentMode;
+    String paymentDate;
 
     public static enum ActionType{
         CREATE("CREATE"),
@@ -79,5 +84,35 @@ public class DB_Stock extends DB_DateTable {
                 .withKeyConditionExpression("restaurantId = :restaurantId")
                 .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
         return AWSCredentials.dynamoDBMapper().query(DB_Stock.class, queryExpression);
+    }
+
+    public static enum PaymentStatus {
+        PAID("paid"),
+        PENDING("pending");
+        private String text;
+
+        private PaymentStatus(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return this.text;
+        }
+
+        public static DB_Stock.PaymentStatus getPaymentStatus(String type) {
+            if (type == null) {
+                return null;
+            }
+            switch (type) {
+                case "PAID":
+                    return PaymentStatus.PAID;
+                case "PENDING":
+                    return PaymentStatus.PENDING;
+                default:
+                    return null;
+            }
+        }
+
     }
 }

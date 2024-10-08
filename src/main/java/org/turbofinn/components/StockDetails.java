@@ -18,12 +18,17 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
 
     public static void main(String[] args) {
         StockDetails.StockInput input = new StockDetails.StockInput();
-        input.setStockId("479e-9ca0-4307c9d28e2f");
+        input.setStockId("9ca0-4307c9d28e2f");
         input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
         input.setName("milk");
         input.setQuantity("2");
         input.setUnit("4");
-        input.setAction("FETCH");
+        input.setUnitPrice("50");
+        input.setTotalPrice("2500");
+        input.setPaymentStatus("PAID");
+        input.setPaymentMode("cash");
+        input.setPaymentDate("08/10/2024");
+        input.setAction("CREATE");
         System.out.println(new Gson().toJson(new StockDetails().handleRequest(input,null)));
     }
 
@@ -85,6 +90,11 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         dbStock.setName(input.getName());
         dbStock.setQuantity(input.getQuantity());
         dbStock.setUnit(input.getUnit());
+        dbStock.setUnitPrice(input.getUnitPrice());
+        dbStock.setTotalPrice(input.getTotalPrice());
+        dbStock.setPaymentStatus(input.getPaymentStatus());
+        dbStock.setPaymentDate(input.getPaymentDate());
+        dbStock.setPaymentMode(input.getPaymentMode());
         dbStock.save();
         return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
@@ -99,6 +109,11 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         dbStock.setName(input.getName());
         dbStock.setQuantity(input.getQuantity());
         dbStock.setUnit(input.getUnit());
+        dbStock.setUnitPrice(input.getUnitPrice());
+        dbStock.setTotalPrice(input.getTotalPrice());
+        dbStock.setPaymentStatus(input.getPaymentStatus());
+        dbStock.setPaymentDate(input.getPaymentDate());
+        dbStock.setPaymentMode(input.getPaymentMode());
         dbStock.save();
         return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
@@ -137,6 +152,11 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         String name;
         String quantity;
         String unit;
+        String unitPrice;
+        String totalPrice;
+        String paymentStatus;
+        String paymentMode;
+        String paymentDate;
         String action;
     }
 
