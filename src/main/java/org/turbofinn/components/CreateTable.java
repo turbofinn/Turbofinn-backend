@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.turbofinn.aws.AWSCredentials;
+import org.turbofinn.dbmappers.DB_Restaurant;
 import org.turbofinn.dbmappers.DB_Table;
 import org.turbofinn.util.Constants;
 
@@ -15,11 +17,11 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
     public static void main(String[] args) {
         String request = "{\n" +
                 "    \"tableNo\": \"9\",\n" +
-                "    \"restaurantId\": \"939fa7e0-23d8-42a9-9a4e-c2f72eb8c0da\",\n" +
+                "    \"restaurantId\": \"fa5f6d2d-7358-4bd0-a28c-25cd32051ebc\",\n" +
                 "    \"userId\": \"\",\n" +
                 "    \"status\": \"unoccupied\",\n" +
                 "    \"paymentStatus\": \"\",\n" +
-                "    \"action\": \"UPDATE\",\n" +
+                "    \"action\": \"DELETE\",\n" +
                 "    \"mobileNo\": \"\"\n" +
                 "}\n";
         System.out.println(new Gson().toJson(new CreateTable().handleRequest(new Gson().fromJson(request, CreateTableInput.class), null)));
@@ -38,6 +40,8 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
                 return createNewTable(input);
             case UPDATE:
                 return updateTable(input);
+            case DELETE:
+                return deleteTable(input);
             default:
                 return new CreateTableOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE));
         }
@@ -45,7 +49,9 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
     public CreateTableOutput createNewTable(CreateTableInput input) {
         DB_Table dbTable = new DB_Table();
-        dbTable.setTableNo(input.getTableNo());
+        DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
+        dbRestaurant.setTableCount(String.valueOf(Integer.parseInt(dbRestaurant.getTableCount()) + 1));
+        dbTable.setTableNo(dbRestaurant.getTableCount());
         dbTable.setRestaurantId(input.getRestaurantId());
         dbTable.setUserId(input.getUserId());
         dbTable.setStatus(input.getStatus());
@@ -54,6 +60,7 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
         try {
             dbTable.save();
+            dbRestaurant.save();
             return new CreateTableOutput(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE));
         } catch (Exception e) {
             return new CreateTableOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, e.getMessage()));
@@ -79,6 +86,19 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
         } catch (Exception e) {
             return new CreateTableOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, e.getMessage()));
         }
+    }
+
+    public CreateTableOutput deleteTable(CreateTableInput input) {
+        DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
+        DB_Table dbTable = DB_Table.fetchByTableNo(dbRestaurant.getTableCount(), input.getRestaurantId());
+        if (dbTable == null) {
+            return new CreateTableOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Table not found"));
+        }
+        dbRestaurant.setTableCount(String.valueOf(Integer.parseInt(dbRestaurant.getTableCount())-1));
+        dbRestaurant.save();
+        dbTable.deleteTable();
+
+        return new CreateTableOutput(new Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE));
     }
 
     @Getter
@@ -114,7 +134,8 @@ public class CreateTable implements RequestHandler<CreateTable.CreateTableInput,
 
     public enum ActionType {
         CREATE("CREATE"),
-        UPDATE("UPDATE");
+        UPDATE("UPDATE"),
+        DELETE("DELETE");
 
         private String text;
 
