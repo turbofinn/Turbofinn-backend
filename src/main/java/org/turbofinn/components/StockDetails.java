@@ -12,13 +12,14 @@ import org.turbofinn.dbmappers.DB_Feedback;
 import org.turbofinn.dbmappers.DB_Stock;
 import org.turbofinn.util.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StockDetails implements RequestHandler<StockDetails.StockInput, StockDetails.StockOutput> {
 
     public static void main(String[] args) {
         StockDetails.StockInput input = new StockDetails.StockInput();
-//        input.setStockId("3b1f126c-8fc3-4b54-9bc3-6e01f1816f71");
+//        input.setStockId("5aeb7925-26e0-44d8-a3d6-2136a463c129");
         input.setRestaurantId("fa5f6d2d-7358-4bd0-a28c-25cd32051ebc");
 //        input.setName("Sugar");
 //        input.setQuantity("25");
@@ -35,8 +36,8 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
     @Override
     public StockDetails.StockOutput handleRequest(StockDetails.StockInput input, Context context) {
 
-        if (input.getRestaurantId() == null) {
-            return new StockDetails.StockOutput(new StockDetails.Response(Constants.GENERIC_RESPONSE_CODE, "Please provide RestaurantId"), null);
+        if (input.getAction() == null) {
+            return new StockDetails.StockOutput(new StockDetails.Response(Constants.GENERIC_RESPONSE_CODE, "Please provide Action"), null);
         }
 
         switch (DB_Feedback.ActionType.getActionType(input.action)) {
@@ -47,7 +48,7 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
             case DELETE:
                 return deleteStock(input);
             case FETCH:
-                return fetchAllStock(input);
+                return fetchStock(input);
             default:
                 return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
         }
@@ -111,15 +112,24 @@ public class StockDetails implements RequestHandler<StockDetails.StockInput, Sto
         return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), null);
     }
 
-    private StockDetails.StockOutput fetchAllStock(StockDetails.StockInput input) {
-        if (input.getRestaurantId() == null) {
-            return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, Constants.INVALID_INPUTS_RESPONSE_MESSAGE), null);
+    private StockDetails.StockOutput fetchStock(StockDetails.StockInput input) {
+        List<DB_Stock> stockList = new ArrayList<>();
+        if (input.getStockId() != null) {
+            DB_Stock stock = DB_Stock.fetchStockByID(input.getStockId());
+            if (stock == null) {
+                return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Provide valid Stock Id"), null);
+            }
+            stockList.add(stock);
+        } else if (input.getRestaurantId() != null) {
+            stockList = DB_Stock.fetchStocksByRestaurantID(input.getRestaurantId());
+            if (stockList == null || stockList.isEmpty()) {
+                return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Provide valid Restaurant Id"), null);
+            }
+        } else {
+            return new StockDetails.StockOutput(new StockDetails.Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Provide Stock Id or Restaurant Id"), null);
         }
-        List<DB_Stock> stock = DB_Stock.fetchStocksByRestaurantID(input.getRestaurantId());
-        if (stock == null) {
-            return new StockDetails.StockOutput(new StockDetails.Response(Constants.GENERIC_RESPONSE_CODE, "Stock not found"), null);
-        }
-        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), stock);
+
+        return new StockDetails.StockOutput(new StockDetails.Response(Constants.SUCCESS_RESPONSE_CODE, Constants.SUCCESS_RESPONSE_MESSAGE), stockList);
     }
 
     @Getter
