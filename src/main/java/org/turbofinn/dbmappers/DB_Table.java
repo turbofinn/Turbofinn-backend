@@ -43,6 +43,11 @@ public class DB_Table {
         System.out.println("*** Table Saved *** " + this.toString());
     }
 
+    public void deleteTable() {
+        AWSCredentials.dynamoDBMapper().delete(this);
+        System.out.println("Table deleted: " + this.toString());
+    }
+
     public static DB_Table fetchByTableNo(String tableNo, String restaurantId) {
         if (tableNo == null || restaurantId == null) {
             throw new IllegalArgumentException("Table No and Restaurant ID cannot be null");
