@@ -44,7 +44,7 @@ public class TFLambdaUpdate {
     private static Regions region = Constants.IS_PROD ? Regions.US_EAST_1 : Regions.US_EAST_1;
 
 
-    private static List<String> lambdaFunctionsToupload = List.of("CreateTable");
+    private static List<String> lambdaFunctionsToupload = List.of("StockDetails");
 
 
     public static void main(String[] args) throws MavenInvocationException {
