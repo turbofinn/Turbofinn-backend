@@ -32,7 +32,7 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         createItemsInput.setPrice(150.0);
         createItemsInput.setEta("dineIn");
         createItemsInput.setItemPicture("sushi_platter.jpg");
-
+        createItemsInput.setCurrency("Dollar");
         System.out.println(new Gson().toJson(new CreateItems().handleRequest(createItemsInput,null)));
 
 
@@ -101,19 +101,9 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         if(createItemsInput.getItemId()==null){
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Item id is null"));
         }
-
-
-        //logic for uploading image in s3
-//        String bucketName = "turbo-treats";
-//        String uuid = UUID.randomUUID().toString();
-//        String imageKey = "Images/" + uuid + ".jpg";
-//        File imageFile = new File(createItemsInput.getItemPicture());
-//
-//        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
-//        if (imageUrl == null) {
-//            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
-//        }
-
+        if(createItemsInput.getCurrency()==null) {
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Please set currency"));
+        }
 
         DB_Items dbItems = DB_Items.fetchItemByID(createItemsInput.itemId);
         dbItems.setRestaurantId(createItemsInput.getRestaurantId());
@@ -127,6 +117,10 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setPrice(createItemsInput.getPrice());
         dbItems.setEta(createItemsInput.getEta());
         dbItems.setItemPicture(createItemsInput.getItemPicture());
+        dbItems.setCurrency(createItemsInput.getCurrency());
+        dbItems.setIsAvailable(createItemsInput.getIsAvailable());
+        dbItems.setDiscountActive(createItemsInput.getDiscountActive());
+        dbItems.setIngredientsAvailable(createItemsInput.getIngredientsAvailable());
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
 
@@ -161,16 +155,9 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         if(createItemsInput.getItemPicture()==null){
             return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE,"Please set the food picture"));
         }
-
-//        //logic for uploading image in s3
-//        String bucketName = "turbo-treats";
-//        String uuid = UUID.randomUUID().toString();
-//        String imageKey = "Images/" + uuid + ".jpg";
-//        File imageFile = new File(createItemsInput.getItemPicture());
-//        String imageUrl = ImageUploadUtil.uploadFile(bucketName, imageKey, imageFile);
-//        if (imageUrl == null) {
-//            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Failed to upload image to S3"));
-//        }
+        if(createItemsInput.getCurrency()==null) {
+            return new CreateItemsOutput(new Response(Constants.GENERIC_RESPONSE_CODE, "Please set currency"));
+        }
 
 
         DB_Items dbItems = new DB_Items();
@@ -185,6 +172,10 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         dbItems.setPrice(createItemsInput.getPrice());
         dbItems.setEta(createItemsInput.getEta());
         dbItems.setItemPicture(createItemsInput.getItemPicture());
+        dbItems.setCurrency(createItemsInput.getCurrency());
+        dbItems.setIsAvailable(createItemsInput.getIsAvailable());
+        dbItems.setDiscountActive(createItemsInput.getDiscountActive());
+        dbItems.setIngredientsAvailable(createItemsInput.getIngredientsAvailable());
         dbItems.save();
         return new CreateItemsOutput(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE));
 
@@ -210,6 +201,10 @@ public class CreateItems implements RequestHandler<CreateItems.CreateItemsInput,
         Double price;
         String eta;
         String itemPicture;
+        String currency;
+        String isAvailable;
+        String discountActive;
+        String ingredientsAvailable;
         String action;
     }
 
