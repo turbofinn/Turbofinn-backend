@@ -37,6 +37,10 @@ public class DB_Items extends DB_DateTable {
     String eta;
     String itemPicture;
     String isDeleted = "false";
+    String currency;
+    String isAvailable = "false";
+    String discountActive = "false";
+    String ingredientsAvailable = "false";
 
     public static enum ActionType {
         CREATE("CREATE"),
