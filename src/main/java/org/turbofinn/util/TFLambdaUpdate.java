@@ -12,6 +12,8 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.*;
+import org.turbofinn.razorPayUtil.RazorpayCallbacks;
+import org.turbofinn.razorPayUtil.RazorpayConstants;
 
 
 import java.io.File;
@@ -44,7 +46,7 @@ public class TFLambdaUpdate {
     private static Regions region = Constants.IS_PROD ? Regions.US_EAST_1 : Regions.US_EAST_1;
 
 
-    private static List<String> lambdaFunctionsToupload =   List.of("OrderStatusHandler");
+    private static List<String> lambdaFunctionsToupload = List.of("StockDetails");
 
 
     public static void main(String[] args) throws MavenInvocationException {
@@ -116,11 +118,11 @@ public class TFLambdaUpdate {
     }
 
     private static void updateCodeAndAlias(List<String> lambdaFunctionsTouploadList) {
-        AtomicInteger i= new AtomicInteger(1);
+        AtomicInteger i = new AtomicInteger(1);
         AWSLambda awsLambdaClient = AWSLambdaClientBuilder.standard().withRegion(region).withCredentials(new AWSStaticCredentialsProvider(new ProfileCredentialsProvider(awsCredentialsProfileName).getCredentials())).build();
         lambdaFunctionsTouploadList.parallelStream().forEach(lambdaFunction -> {
             System.out.println("----------------------------------------");
-            System.out.println("Uploading "+ (lambdaFunctionsToupload.indexOf(lambdaFunction)+1) +" of "+ lambdaFunctionsToupload.size());
+            System.out.println("Uploading " + (lambdaFunctionsToupload.indexOf(lambdaFunction) + 1) + " of " + lambdaFunctionsToupload.size());
             System.out.print("Lambda function '" + lambdaFunction + "' ");
             try {
 
@@ -164,28 +166,30 @@ public class TFLambdaUpdate {
     }
 
     public static void waitUntilActive(AWSLambda lambdaClient, String functionName) {
-        boolean isActive  = false;
+        boolean isActive = false;
         int hardLimit = 4;
-        int attempts  = 0;
+        int attempts = 0;
         do {
             if (attempts++ >= hardLimit) return;
             int waitTime = getWaitTimeExp(attempts);
-            System.out.print("\nWaiting: " + (waitTime/1000) + " seconds : " + functionName);
+            System.out.print("\nWaiting: " + (waitTime / 1000) + " seconds : " + functionName);
             waitForSec(waitTime);
             isActive = isFunctionActive(lambdaClient, functionName);
         } while (!isActive);
     }
 
     private static int getWaitTimeExp(int attempts) {
-        return (int) (Math.pow( 2, attempts) * 1000);
+        return (int) (Math.pow(2, attempts) * 1000);
     }
 
     private static void waitForSec(Integer milliSeconds) {
         int timeInMilliSecond = milliSeconds == null ? 1000 : milliSeconds;
-        try { Thread.sleep(timeInMilliSecond); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        try {
+            Thread.sleep(timeInMilliSecond);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-
 
 
 }

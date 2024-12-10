@@ -18,12 +18,17 @@ import java.time.LocalDate;
 public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.CreatePaymentOrderInput,CreatePaymentOrder.CreatePaymentOrderOutput> {
 
     public static void main(String[] args) {
-        JSONObject orderRequest = new JSONObject();
-        orderRequest.put("amount", 50000); // amount in the smallest currency unit (e.g., paise)
-        orderRequest.put("currency", "INR");
-        orderRequest.put("receipt", "receipt#1");
-        orderRequest.put("payment_capture", 1);
-        System.out.println(new Gson().toJson(new CreatePaymentOrder().handleRequest(new Gson().fromJson(String.valueOf(orderRequest),CreatePaymentOrderInput.class),null)));
+        String req = "{\n" +
+                "    \"amount\": 20,\n" +
+                "    \"currency\": \"INR\",\n" +
+                "    \"receipt\": \"rec123456789\",\n" +
+                "    \"restaurantID\": \"1dcc3cd4-cf8b-47b5-856c-97fedd02d455\",\n" +
+                "    \"userID\": \"59c6bc08-f00b-4c02-bae5-722c0c709c07\",\n" +
+                "    \"tableNo\": \"7\",\n" +
+                "    \"payment_capture\": 1\n" +
+                "}";
+        CreatePaymentOrderInput input = new Gson().fromJson(req, CreatePaymentOrderInput.class);
+        System.out.println(new Gson().toJson(new CreatePaymentOrder().handleRequest(input,null)));
     }
 
     @Override
@@ -41,7 +46,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
 
         RazorpayClient razorpay = null;
         try {
-            razorpay = new RazorpayClient("rzp_test_CpaKZGQeJCUIbQ", "1qYbYIePiuBR5YDanCyfwqJy");
+            razorpay = new RazorpayClient("rzp_live_MhFMxh3USLjA7x", "VV2cVaWtXlEJDRRoadHYnRcM");
             JSONObject orderRequest = new JSONObject();
             orderRequest.put("amount", (input.amount*100)); // In paisa
             orderRequest.put("currency", "INR");
