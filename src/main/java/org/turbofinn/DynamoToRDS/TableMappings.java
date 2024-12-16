@@ -28,6 +28,7 @@ public class TableMappings {
                         "itemPicture",
                         "name",
                         "price",
+                        "currency",    // newly added by anurag
                         "restaurantId",
                         "tag",
                         "type",
