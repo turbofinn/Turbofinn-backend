@@ -46,7 +46,7 @@ public class CreatePaymentOrder implements RequestHandler<CreatePaymentOrder.Cre
 
         RazorpayClient razorpay = null;
         try {
-            razorpay = new RazorpayClient("rzp_live_MhFMxh3USLjA7x", "VV2cVaWtXlEJDRRoadHYnRcM");
+            razorpay = new RazorpayClient("rzp_live_4uhl9UXEbrtwlT", "3cwIrwvvh4SeuaA4SH9yl6ur");
             JSONObject orderRequest = new JSONObject();
             orderRequest.put("amount", (input.amount*100)); // In paisa
             orderRequest.put("currency", "INR");
