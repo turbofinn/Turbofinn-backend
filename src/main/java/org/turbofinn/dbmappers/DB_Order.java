@@ -34,6 +34,7 @@ public class DB_Order extends DB_DateTable {
     String customerRequest;
     String customerFeedback;
     double customerRating;
+    String orderDate;
 
     @ToString
     @DynamoDBDocument

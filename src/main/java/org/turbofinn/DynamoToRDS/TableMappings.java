@@ -68,7 +68,8 @@ public class TableMappings {
                         "tableNo",
                         "totalAmount",
                         "updatedDate",
-                        "userId"
+                        "userId",
+                        "orderDate"
                 },
                 new String[]{}
         ));
@@ -125,6 +126,7 @@ public class TableMappings {
                 "userId",
                 new String[]{
                         "userId",
+                        "userName",
                         "createdDate",
                         "mobileNo",
                         "updatedDate"

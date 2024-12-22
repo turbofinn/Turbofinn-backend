@@ -29,7 +29,7 @@ public class DB_Items extends DB_DateTable {
     String cuisine;     // Indian, chinese,japanese
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "category-index")
     String category;    // fastfood, chinese, biryani, pizza ,burger
-    String flag;         //veg ,nonveg ,alcoholic,nonalcoholic
+    String flag;         // veg ,nonveg ,alcoholic,nonalcoholic
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "tag-index")
     String tag;
     String description;
