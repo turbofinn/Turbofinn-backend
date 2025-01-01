@@ -14,11 +14,13 @@ import org.turbofinn.util.Constants;
 
 public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,VerifyOTP.VerifyOtpOutput> {
     public static void main(String[] args) {
-        VerifyOtpInput input = new VerifyOtpInput();
-        input.setMobileNo("7985159933");
-        input.setOtp("1234");
-        input.setRestaurantId("939fa7e0-23d8-42a9-9a4e-c2f72eb8c0da");
-        input.setTableNo("9");
+        VerifyOtpInput input = new Gson().fromJson("{\n" +
+                "    \"restaurantId\": \"04d68d60-4887-4b52-839d-3f2b2a9d4f8a\",\n" +
+                "    \"tableNo\": \"4\",\n" +
+                "    \"mobileNo\": \"8960880615\",\n" +
+                "    \"userName\": \"Gaurav Singh\",\n" +
+                "    \"otp\": \"1234\"\n" +
+                "}", VerifyOtpInput.class);
         System.out.println(new Gson().toJson(new VerifyOTP().handleRequest(input,null)));
 
     }
@@ -47,6 +49,7 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
             if(dbUser==null){
                 DB_User user = new DB_User();
                 user.setMobileNo(input.mobileNo);
+                user.setUserName(input.userName);
                 user.save();
 
                 System.out.println("User is created"+ user.getUserId());
@@ -104,6 +107,7 @@ public class VerifyOTP implements RequestHandler<VerifyOTP.VerifyOtpInput,Verify
         public String otp;
         public String restaurantId;
         public String tableNo;
+        public String userName;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
