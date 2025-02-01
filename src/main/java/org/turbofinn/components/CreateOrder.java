@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Order;
+import org.turbofinn.enums.OrderSource;
 import org.turbofinn.enums.OrderStatus;
 import org.turbofinn.util.Constants;
 
@@ -82,9 +83,9 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         if(createOrderInput.userId == null){
             return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"User id is not provided"), null);
         }
-        if(createOrderInput.tableNo == null){
-            return new CreateOrdersOutput( new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide table no"), null);
-        }
+//        if(createOrderInput.tableNo == null){
+//            return new CreateOrdersOutput( new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide table no"), null);
+//        }
         if(createOrderInput.paymentStatus == null){
             return new CreateOrdersOutput( new Response(Constants.GENERIC_RESPONSE_CODE,"Payment status is not provided"), null);
         }
@@ -93,7 +94,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         }
         DB_Order dbOrder = new DB_Order();
         dbOrder.setRestaurantId(createOrderInput.getRestaurantId());
-        dbOrder.setTableNo(createOrderInput.getTableNo());
+        dbOrder.setTableNo(createOrderInput.getTableNo()!=null ? createOrderInput.getTableNo():"");
         dbOrder.setUserId(createOrderInput.getUserId());
         dbOrder.setTotalAmount(createOrderInput.getTotalAmount());
 
@@ -107,6 +108,11 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         dbOrder.setCustomerRating(createOrderInput.getCustomerRating());
         dbOrder.setPaymentStatus(createOrderInput.getPaymentStatus());
         dbOrder.setOrderDate(LocalDate.now().toString());
+        try {
+            dbOrder.setOrderSource(OrderSource.valueOf(createOrderInput.getOrderSource().toUpperCase()).toString());
+        } catch (IllegalArgumentException e) {
+            return new CreateOrdersOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid order source"), null);
+        }
         dbOrder.save();
         String order = dbOrder.getOrderId();
         System.out.println(order);
@@ -153,6 +159,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         String customerRequest;
         String customerFeedback;
         double customerRating;
+        String orderSource;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor

@@ -19,11 +19,11 @@ public class CreateFeedback implements RequestHandler<CreateFeedback.CreateFeedb
     public static void main(String[] args) {
         CreateFeedback.CreateFeedbackInput input = new CreateFeedback.CreateFeedbackInput();
         input.setFeedbackId("d1d07aae-39a9-479e-9ca0-4307c9d28e2f");
-        input.setRestaurantId("308bc44a-de00-488e-b980-5ee0797e82e2");
-        input.setUserId("bef2578c-8346-4b03-8971-20da77c4bedd");
-        input.setMessage("delicious food and service");
-        input.setRating("4");
-        input.setAction("FETCH");
+        input.setRestaurantId("04d68d60-4887-4b52-839d-3f2b2a9d4f8a");
+        input.setUserId("9a884b16-054a-4b24-9f16-84e40c0b9526");
+        input.setMessage("delicious food and service very nice");
+        input.setRating("5");
+        input.setAction("CREATE");
 
         System.out.println(new Gson().toJson(new CreateFeedback().handleRequest(input,null)));
     }
