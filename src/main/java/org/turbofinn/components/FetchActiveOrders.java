@@ -1,5 +1,7 @@
 package org.turbofinn.components;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexRangeKey;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.gson.Gson;
@@ -8,8 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Order;
+import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.util.Constants;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.List;
@@ -22,15 +26,44 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
     }
     @Override
     public FetchActiveOrders.Output handleRequest(FetchActiveOrders.Input input, Context context) {
-        if(input==null && input.restaurantId==null){
+        if(input==null || input.restaurantId==null){
 
             return new Output(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),null);
         }
 
-        List<DB_Order> orderList = null;
+        List<DB_Order> orders = null;
+        List<Order>  orderList = new ArrayList<>();
         String todayDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         try{
-            orderList = DB_Order.fetchAllActiveOrdersByRestaurantId(input.getRestaurantId(),todayDate);
+            orders = DB_Order.fetchAllActiveOrdersByRestaurantId(input.getRestaurantId(),todayDate);
+
+            if(orders != null ){
+                for(DB_Order order : orders){
+                    if(order.getUserId()==null){
+                        return new Output(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Not a valid order"),null);
+                    }
+                    DB_User user = DB_User.fetchUserByUserID(order.getUserId());
+                    Order order1 = new Order();
+                    order1.setTableNo(order.getTableNo() != null ? order.getTableNo() : "");
+                    order1.setRestaurantId(order.getRestaurantId() != null ? order.getRestaurantId() : "");
+                    order1.setPaymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus() : "");
+                    order1.setTotalAmount(order.getTotalAmount());
+                    order1.setOrderLists(order.getOrderLists() != null ? order.getOrderLists() : "");
+                    order1.setOrderStatus(order.getOrderStatus() != null ? order.getOrderStatus() : "");
+                    order1.setCustomerRequest(order.getCustomerRequest() != null ? order.getCustomerRequest() : "");
+                    order1.setCustomerFeedback(order.getCustomerFeedback() != null ? order.getCustomerFeedback() : "");
+                    order1.setCustomerRating(order.getCustomerRating());
+                    order1.setOrderDate(order.getOrderDate() != null ? order.getOrderDate() : "");
+                    order1.setOrderSource(order.getOrderSource() != null ? order.getOrderSource() : "");
+                    order1.setUserName(user != null && user.getUserName() != null ? user.getUserName() : "Unknown");
+
+                    orderList.add(order1);
+                    System.out.println(orderList);
+
+                }
+            }else{
+                return new Output(new Response(Constants.SUCCESS_RESPONSE_CODE,"No Order found today"),orderList);
+            }
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -46,7 +79,8 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
     public static class  Output{
 
         private Response response;
-        private List<DB_Order> orderList;
+        private List<Order> orderList;
+
 
 
     }
@@ -63,5 +97,23 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
         private int responseCode;
         private String message;
 
+    }
+
+    @Getter@Setter@AllArgsConstructor@NoArgsConstructor
+    private static class Order{
+
+        String tableNo;
+        String restaurantId;
+        String paymentStatus;
+        double totalAmount;
+
+        String orderLists;
+        String orderStatus;
+        String customerRequest;
+        String customerFeedback;
+        double customerRating;
+        String orderDate;
+        String orderSource;
+        String userName;
     }
 }
