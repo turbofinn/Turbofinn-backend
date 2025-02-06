@@ -68,7 +68,8 @@ public class TableMappings {
                         "tableNo",
                         "totalAmount",
                         "updatedDate",
-                        "userId"
+                        "userId",
+                        "orderDate"
                 },
                 new String[]{}
         ));
@@ -125,8 +126,27 @@ public class TableMappings {
                 "userId",
                 new String[]{
                         "userId",
+                        "userName",
                         "createdDate",
                         "mobileNo",
+                        "updatedDate"
+                },
+                new String[]{}
+        ));
+        mappings.put("OpsUser", new TableMapping(
+                "OpsUser",
+                "opsID",
+                new String[]{
+                        "opsID",
+                        "mobileNo",
+                        "createdDate",
+                        "designation",
+                        "dob",
+                        "email",
+                        "gender",
+                        "name",
+                        "profilePicture",
+                        "restaurantID",
                         "updatedDate"
                 },
                 new String[]{}

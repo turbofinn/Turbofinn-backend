@@ -25,6 +25,7 @@ public class DB_Order extends DB_DateTable {
     String tableNo;
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "userId-index")
     String userId;
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "restaurantId-orderDate-index")
     String restaurantId;
     String paymentStatus;
     double totalAmount;
@@ -34,6 +35,9 @@ public class DB_Order extends DB_DateTable {
     String customerRequest;
     String customerFeedback;
     double customerRating;
+    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "restaurantId-orderDate-index")
+    String orderDate;
+    String orderSource;
 
     @ToString
     @DynamoDBDocument
@@ -81,6 +85,7 @@ public class DB_Order extends DB_DateTable {
         }
     }
 
+
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);
         System.out.println("*** Oredr Saved *** " + new Gson().toJson(this));
@@ -115,5 +120,21 @@ public class DB_Order extends DB_DateTable {
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withConsistentRead(false);
         return AWSCredentials.dynamoDBMapper().query(DB_Order.class, queryExpression);
+    }
+
+    public static List<DB_Order> fetchAllActiveOrdersByRestaurantId(String restaurantId,String todayDate){
+        if (restaurantId == null ) {
+            throw new IllegalArgumentException("restaurantId cannot be null");
+        }
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":restaurantId", new AttributeValue().withS(restaurantId));
+        expressionAttributeValues.put(":orderDate", new AttributeValue().withS(todayDate));
+        DynamoDBQueryExpression<DB_Order> queryExpression = new DynamoDBQueryExpression<DB_Order>()
+                .withIndexName("restaurantId-orderDate-index")
+                .withKeyConditionExpression("restaurantId = :restaurantId AND orderDate = :orderDate")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withConsistentRead(false);
+        return AWSCredentials.dynamoDBMapper().query(DB_Order.class, queryExpression);
+
     }
 }

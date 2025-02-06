@@ -71,6 +71,9 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
                 case "ITEM_PIC":
                     folderName="Images/";
                     break;
+                case "RESTAURANT_LOGO":
+                    folderName="RestaurantLogo/";
+                    break;
                 default:
                     folderName="";
                     break;

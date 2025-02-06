@@ -14,7 +14,7 @@ import org.yaml.snakeyaml.scanner.Constant;
 public class FetchConfig implements RequestHandler<FetchConfig.FetchConfigInput, FetchConfig.FetchConfigOutput> {
     public static void main(String[] args) {
         FetchConfigInput input = new FetchConfigInput();
-        input.setKey("NBFC_LIST");
+        input.setKey("CATEGORY_LIST");
         System.out.println(new Gson().toJson(new FetchConfig().handleRequest(input,null)));
     }
 

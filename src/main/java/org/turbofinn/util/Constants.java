@@ -17,7 +17,9 @@ public class Constants {
 
     public static final String RDS_URL = "jdbc:mysql://turbofinn-dev.cjmo2k0q4pt6.ap-south-1.rds.amazonaws.com:3306/Turbofinn";
     public static final String RDS_USERNAME = "root";
-    public static final String RDS_PASSWORD = "turbofinn123";
+    public static final String RDS_PASSWORD = "turbofinn111";
+
+
 
 
 }
