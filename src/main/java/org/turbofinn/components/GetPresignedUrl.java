@@ -37,7 +37,8 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
     private static final Set<String> VALID_MIME_TYPES = Set.of(
             "image/jpeg",
             "image/png",
-            "image/gif"
+            "image/gif",
+            "application/pdf"
     );
     @Override
     public GetPresignedUrlOutput handleRequest(GetPresignedUrlInput input, Context context) {
@@ -73,6 +74,9 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
                     break;
                 case "RESTAURANT_LOGO":
                     folderName="RestaurantLogo/";
+                    break;
+                case "INVOICE":
+                    folderName="Invoice/";
                     break;
                 default:
                     folderName="";

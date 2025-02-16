@@ -150,14 +150,11 @@
         <groupId>org.apache.httpcomponents.core5</groupId>
         <artifactId>httpcore5</artifactId>
         <version>5.2.1</version>
-
     </dependency>
-
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>fluent-hc</artifactId>
         <version>4.5.14</version>
-
     </dependency>
     <dependency>
         <groupId>org.projectlombok</groupId>
@@ -174,7 +171,6 @@
         <groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-core</artifactId>
         <version>1.12.709</version>
-
     </dependency>
     <dependency>
         <groupId>com.amazonaws</groupId>
@@ -232,6 +228,12 @@
         <groupId>org.eclipse.ecf</groupId>
         <artifactId>org.apache.commons.codec</artifactId>
         <version>1.9.0.v20170208-1614</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.itextpdf</groupId>
+        <artifactId>itextpdf</artifactId>
+        <version>5.5.10</version>
         <scope>provided</scope>
     </dependency>
 
