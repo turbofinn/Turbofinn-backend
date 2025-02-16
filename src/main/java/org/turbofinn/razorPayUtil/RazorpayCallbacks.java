@@ -77,11 +77,15 @@ public class RazorpayCallbacks implements RequestHandler<Object, Object>{
                 dbPayments.setPaymentDate(LocalDate.now().toString());
                 dbPayments.setPaymentMode(entity.method);
                 dbPayments.setPaymentStatus(DB_Payments.PaymentStatus.PAID.toString());
+
+                GenerateInvoice.InvoiceModel invoiceModel =  createInvoiceFromJson(new Gson().toJson(input.payload.payment.entity));
+                System.out.println(new Gson().toJson(invoiceModel));
+                String url = GenerateInvoice.generateInvoicePDF(invoiceModel);
+                System.out.println(url);
+                dbPayments.setInvoiceUrl(url);
                 dbPayments.save();
             }
-            GenerateInvoice.InvoiceModel invoiceModel =  createInvoiceFromJson(new Gson().toJson(input.payload.payment.entity));
-            System.out.println(new Gson().toJson(invoiceModel));
-            String url = GenerateInvoice.generateInvoicePDF(invoiceModel);
+
         }else {
             System.out.println("Something went wrong");
         }

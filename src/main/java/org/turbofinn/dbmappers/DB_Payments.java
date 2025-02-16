@@ -28,6 +28,7 @@ public class DB_Payments extends DB_DateTable{
     String paymentDate;
     String userId;
     String paymentMode;
+    String invoiceUrl;
 
     public void save() {
         AWSCredentials.dynamoDBMapper().save(this);

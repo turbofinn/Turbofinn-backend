@@ -22,37 +22,6 @@ import org.turbofinn.components.GetPresignedUrl;
 
 public class GenerateInvoice {
 
-    public static void main(String[] args) {
-        GenerateInvoice.InvoiceModel invoiceModel = new GenerateInvoice.InvoiceModel(
-                "Algoflow AI Pvt. Ltd.",  // companyName
-                "Basaratpur Adalpura Chunar Mirzapur, Uttar Pradesh 231304, India",  // companyAddress
-                "info@turbofinn.com",  // companyEmail
-                "John Doe",  // customerName
-                "XYZ Corp.",  // customerCompanyName
-                "123 Main Street, Somewhere City, 12345",  // customerAddress
-                "2025-02-15",  // date (this can be today's date or any date in format yyyy-MM-dd)
-                "INV-12345-XYZ",  // referenceNumber
-                "Consulting services for AI implementation",  // serviceDescription
-                "5000",  // grossAmount
-                5000,  // totalAmount (same as grossAmount for simplicity)
-                18,  // igstPercent
-                900,  // igstAmount
-                9,  // sgstPercent
-                450,  // sgstAmount
-                9,  // cgstPercent
-                450,  // cgstAmount
-                5800,  // payableAmountAfterTax
-                100,  // tdsAmount
-                2,  // tdsPercent
-                true,  // enableTds (if TDS is applicable)
-                5700,  // netAmount
-                "Bank of India, Account No: 1234567890, IFSC: BIO12345",  // bankDetails
-                "Authorized Signatory",  // partnersSignature
-                "INR"  // currency
-        );
-
-        generateInvoicePDF(invoiceModel);
-    }
 
     private static final String[] belowTen = {"", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"};
     private static final String[] belowTwenty = {"Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"};
@@ -62,7 +31,6 @@ public class GenerateInvoice {
 
     public static String generateInvoicePDF( GenerateInvoice.InvoiceModel model) {
         String fileName = "/tmp/"+ LocalDate.now()+"_"+UUID.randomUUID()+".pdf";
-        String imagePath = "/Users/divyanshisingh/Desktop/letter-head.jpeg"; // Path to the uploaded image
 
         String invoiceNumber = generateInvoiceId(invoiceCounter);
         String amountInWords = convertNumberToWords(model.totalAmount);
@@ -71,8 +39,6 @@ public class GenerateInvoice {
             Document document = new Document(PageSize.A4);
             PdfWriter.getInstance(document, new FileOutputStream(fileName));
             document.open();
-            // Company Header
-            Image headerImage = Image.getInstance(imagePath);
             Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
             Paragraph companyName = new Paragraph(model.companyName, titleFont);
             companyName.setAlignment(Element.ALIGN_CENTER);
@@ -140,11 +106,8 @@ public class GenerateInvoice {
             document.add(bankTable);
             document.close();
             System.out.println("Invoice generated successfully in /tmp folder!");
-            GetPresignedUrl.GetPresignedUrlInput input = new GetPresignedUrl.GetPresignedUrlInput("INVOICE", "application/pdf");
-            GetPresignedUrl.GetPresignedUrlOutput output = new GetPresignedUrl().handleRequest(input, null);
-            String presignedUrl = output.getUrl();
+
             url = uploadFileToS3(readFileFromPath(fileName), "turbo-treats", "Invoice");
-            System.out.println("Pre-signed URL: " + presignedUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -164,21 +127,8 @@ public class GenerateInvoice {
     private static String uploadFileToS3(File file,String bucketName, String folderName) {
         System.out.println("BucketName = " + bucketName + "\nFileName = " + file.getName());
         AWSCredentials.s3Client().putObject(bucketName, folderName+"/"+file.getName(), file);
-
-        java.util.Date expiration = new java.util.Date();
-        long expTimeMillis = Instant.now().toEpochMilli();
-        expTimeMillis += 1000 * 60 * 60 * 24;
-        expiration.setTime(expTimeMillis);
-
-        System.out.println("Generating pre-signed URL.");
-        GeneratePresignedUrlRequest generatePresignedUrlRequest =
-                new GeneratePresignedUrlRequest(bucketName, folderName+"/"+file.getName())
-                        .withMethod(HttpMethod.GET)
-                        .withExpiration(expiration);
-        URL url = AWSCredentials.s3Client().generatePresignedUrl(generatePresignedUrlRequest);
-
-        String fileURL = url.toString();
-        return fileURL;
+        String url = AWSCredentials.s3Client().getUrl(bucketName, folderName + "/" + file.getName()).toString();
+        return url;
     }
 
 
