@@ -5,10 +5,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBIndexRangeKey;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.google.gson.Gson;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.google.gson.reflect.TypeToken;
+import lombok.*;
+import org.turbofinn.dbmappers.DB_Items;
 import org.turbofinn.dbmappers.DB_Order;
 import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.util.Constants;
@@ -17,8 +16,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Input,FetchActiveOrders.Output> {
+
 
     public static void main(String[] args) {
         Input input = new Input("04d68d60-4887-4b52-839d-3f2b2a9d4f8a");
@@ -48,7 +49,6 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
                     order1.setRestaurantId(order.getRestaurantId() != null ? order.getRestaurantId() : "");
                     order1.setPaymentStatus(order.getPaymentStatus() != null ? order.getPaymentStatus() : "");
                     order1.setTotalAmount(order.getTotalAmount());
-                    order1.setOrderLists(order.getOrderLists() != null ? order.getOrderLists() : "");
                     order1.setOrderStatus(order.getOrderStatus() != null ? order.getOrderStatus() : "");
                     order1.setCustomerRequest(order.getCustomerRequest() != null ? order.getCustomerRequest() : "");
                     order1.setCustomerFeedback(order.getCustomerFeedback() != null ? order.getCustomerFeedback() : "");
@@ -57,8 +57,29 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
                     order1.setOrderSource(order.getOrderSource() != null ? order.getOrderSource() : "");
                     order1.setUserName(user != null && user.getUserName() != null ? user.getUserName() : "Unknown");
 
+
+
+                    List<Item> items = new Gson().fromJson(order.getOrderLists(), new TypeToken<List<Item>>() {}.getType());
+                    List<ItemList> itemLists = items.stream()
+                            .map(item -> {
+                                DB_Items dbItem = DB_Items.fetchItemByID(item.getItemId());
+                                if (dbItem == null) {
+
+                                    System.out.println("Warning: Item with ID " + item.getItemId() + " not found in DB.");
+                                    return new ItemList("Unknown Item", item.getQuantity(), 0.0, ""); // Default values
+                                }
+                                return new ItemList(
+                                        dbItem.getName(),
+                                        item.getQuantity(),
+                                        dbItem.getPrice() * item.getQuantity(),
+                                        dbItem.getItemPicture()
+                                );
+                            })
+                            .collect(Collectors.toList());
+
+                    order1.setOrderList(itemLists);
                     orderList.add(order1);
-                    System.out.println(orderList);
+
 
                 }
             }else{
@@ -68,6 +89,7 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
         catch (Exception e){
             System.out.println(e.getMessage());
         }
+
         return new Output(new Response(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE),orderList);
 
     }
@@ -107,7 +129,7 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
         String paymentStatus;
         double totalAmount;
 
-        String orderLists;
+        List<ItemList> orderList;
         String orderStatus;
         String customerRequest;
         String customerFeedback;
@@ -116,4 +138,18 @@ public class FetchActiveOrders  implements RequestHandler<FetchActiveOrders.Inpu
         String orderSource;
         String userName;
     }
+
+    @Getter@Setter@AllArgsConstructor@NoArgsConstructor
+    private static class Item{
+        private String itemId;
+        private int quantity;
+    }
+    @Getter@Setter@AllArgsConstructor@NoArgsConstructor
+    private static class ItemList{
+        private String itemName;
+        private int quantity;
+        private double totalPrice;
+        private String itemPicture;
+    }
+
 }
