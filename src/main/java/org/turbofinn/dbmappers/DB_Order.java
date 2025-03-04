@@ -38,6 +38,7 @@ public class DB_Order extends DB_DateTable {
     @DynamoDBIndexRangeKey(globalSecondaryIndexName = "restaurantId-orderDate-index")
     String orderDate;
     String orderSource;
+    String userName;
 
     @ToString
     @DynamoDBDocument

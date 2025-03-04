@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.turbofinn.dbmappers.DB_Order;
+import org.turbofinn.dbmappers.DB_User;
 import org.turbofinn.enums.OrderSource;
 import org.turbofinn.enums.OrderStatus;
 import org.turbofinn.util.Constants;
@@ -21,30 +22,31 @@ import java.util.List;
 public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,CreateOrder.CreateOrdersOutput> {
 
     public static void main(String[] args) {
-//        String request = "{\n" +
-//                "    \"tableNo\": \"table5\",\n" +
-//                "    \"userId\": \"3b813bb7-719c-4f4c-bf39-61ec1b8846a9\",\n" +
-//                "    \"restaurantId\": \"308bc44a-de00-488e-b980-5ee0797e82e2\",\n" +
-//                "    \"totalAmount\": 560,\n" +
-//                "    \"action\": \"CREATE\",\n" +
-//                "    \"paymentStatus\": \"NOTPAID\",\n" +
-//                "    \"orderLists\": [\n" +
-//                "        {\n" +
-//                "            \"itemId\": \"9aabe7cd-7c6f-4e5e-b556-12c478e744gh\",\n" +
-//                "            \"quantity\": 2,\n" +
-//                "            \"price\": 280\n" +
-//                "        }\n" +
-//                "    ],\n" +
-//                "    \"orderStatus\": \"orderStatus\",\n" +
-//                "    \"customerRequest\": \"Please make it spicy\",\n" +
-//                "    \"customerFeedback\": \"Great service\",\n" +
-//                "    \"customerRating\": 4.5\n" +
-//                "}";
         String request = "{\n" +
-                "    \"orderId\": \"79fd6ffd-3236-482f-9e76-e38b81aca8b1\",\n" +
-                "    \"action\": \"UPDATE\",\n" +
-                "    \"orderStatus\": \"DELIVERED\"\n" +
+                "    \"mobileNo\": \"6\",\n" +
+                "    \"userName\": \"Saurabh\",\n" +
+                "    \"restaurantId\": \"04d68d60-4887-4b52-839d-3f2b2a9d4f8a\",\n" +
+                "    \"totalAmount\": 560,\n" +
+                "    \"action\": \"CREATE\",\n" +
+                "    \"paymentStatus\": \"NOTPAID\",\n" +
+                "    \"orderLists\": [\n" +
+                "        {\n" +
+                "            \"itemId\": \"9aabe7cd-7c6f-4e5e-b556-12c478e744gh\",\n" +
+                "            \"quantity\": 2,\n" +
+                "            \"price\": 280\n" +
+                "        }\n" +
+                "    ],\n" +
+                "    \"orderStatus\": \"orderStatus\",\n" +
+                "    \"customerRequest\": \"Please make it spicy\",\n" +
+                "    \"customerFeedback\": \"Great service\",\n" +
+                "    \"customerRating\": 4.5,\n" +
+                "    \"orderSource\":\"Manual\"\n" +
                 "}";
+//        String request = "{\n" +
+//                "    \"orderId\": \"79fd6ffd-3236-482f-9e76-e38b81aca8b1\",\n" +
+//                "    \"action\": \"UPDATE\",\n" +
+//                "    \"orderStatus\": \"DELIVERED\"\n" +
+//                "}";
 
         System.out.println(new Gson().toJson(new CreateOrder().handleRequest(new Gson().fromJson(request, CreateOrderInput.class), null)));
 
@@ -80,9 +82,10 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         if(createOrderInput.restaurantId == null){
             return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Restaurant id is not provided"), null);
         }
-        if(createOrderInput.userId == null){
+        if(createOrderInput.userId == null && !OrderSource.MANUAL.toString().equals(createOrderInput.getOrderSource().toUpperCase())){
             return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"User id is not provided"), null);
         }
+
 //        if(createOrderInput.tableNo == null){
 //            return new CreateOrdersOutput( new Response(Constants.GENERIC_RESPONSE_CODE,"Please provide table no"), null);
 //        }
@@ -95,7 +98,7 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         DB_Order dbOrder = new DB_Order();
         dbOrder.setRestaurantId(createOrderInput.getRestaurantId());
         dbOrder.setTableNo(createOrderInput.getTableNo()!=null ? createOrderInput.getTableNo():"");
-        dbOrder.setUserId(createOrderInput.getUserId());
+
         dbOrder.setTotalAmount(createOrderInput.getTotalAmount());
 
         List<DB_Order.OrderList> orderLists = new Gson().fromJson(new Gson().toJson(createOrderInput.getOrderLists()), new TypeToken<ArrayList<DB_Order.OrderList>>() {
@@ -112,6 +115,29 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
             dbOrder.setOrderSource(OrderSource.valueOf(createOrderInput.getOrderSource().toUpperCase()).toString());
         } catch (IllegalArgumentException e) {
             return new CreateOrdersOutput(new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid order source"), null);
+        }
+
+        if(OrderSource.MANUAL.toString().equals(createOrderInput.getOrderSource().toUpperCase())){
+            if(createOrderInput.mobileNo==null || createOrderInput.mobileNo.isBlank()){
+                return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Mobile no.is not provided"), null);
+            }
+            if(createOrderInput.userName==null || createOrderInput.userName.isBlank()){
+                return new CreateOrdersOutput( new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"username is not provided"), null);
+            }
+            DB_User user = DB_User.fetchUserByMobileNo(createOrderInput.mobileNo);
+            if(user!=null){
+                dbOrder.setUserId(user.getUserId());
+            }else{
+                DB_User dbUser = new DB_User();
+                dbUser.setMobileNo(createOrderInput.mobileNo);
+                dbUser.setUserName(createOrderInput.userName);
+                dbUser.save();
+                dbOrder.setUserId(dbUser.getUserId());
+            }
+            dbOrder.setUserName(createOrderInput.userName);
+        }
+        else{
+            dbOrder.setUserId(createOrderInput.getUserId());
         }
         dbOrder.save();
         String order = dbOrder.getOrderId();
@@ -160,6 +186,8 @@ public class CreateOrder implements RequestHandler<CreateOrder.CreateOrderInput,
         String customerFeedback;
         double customerRating;
         String orderSource;
+        String mobileNo;
+        String userName;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
