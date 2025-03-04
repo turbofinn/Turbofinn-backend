@@ -69,7 +69,8 @@ public class TableMappings {
                         "totalAmount",
                         "updatedDate",
                         "userId",
-                        "orderDate"
+                        "orderDate",
+                        "orderSource"
                 },
                 new String[]{}
         ));
