@@ -111,4 +111,17 @@ public class DB_Restaurant extends DB_DateTable{
                 queryExpression);
         return (dbQueryList != null && dbQueryList.size() > 0) ? dbQueryList.get(0) : null;
     }
+
+    public static  PaginatedQueryList<DB_Restaurant> fetchByCity(String city) {
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":city", new AttributeValue().withS(city));
+        DynamoDBQueryExpression<DB_Restaurant> queryExpression = new DynamoDBQueryExpression<DB_Restaurant>()
+                .withIndexName("city-index")
+                .withKeyConditionExpression("city = :city")
+                .withExpressionAttributeValues(expressionAttributeValues).withConsistentRead(false);
+        PaginatedQueryList<DB_Restaurant> dbQueryList = AWSCredentials.dynamoDBMapper().query(DB_Restaurant.class,
+                queryExpression);
+        return (dbQueryList != null && dbQueryList.size() > 0) ? dbQueryList : null;
+
+    }
 }
