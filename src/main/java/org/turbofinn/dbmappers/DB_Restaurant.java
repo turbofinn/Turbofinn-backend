@@ -31,6 +31,12 @@ public class DB_Restaurant extends DB_DateTable{
     String tableCount;
     String logo;
     String status;
+    public String latitude;
+    public String longitude;
+    public String cusineType;
+    public String openingTime;
+    public String closingTime;
+    public String serviceType;
 
     public static enum ActionType {
         CREATE("CREATE"),
