@@ -60,6 +60,12 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         dbRestaurant.setTableCount(input.getTableCount());
         dbRestaurant.setLogo(input.getLogo());
         dbRestaurant.setRestaurantAccountNo(TFUtils.generateRestaurantAccountNo(Constants.RESTAURANT_ACCOUNT_NO_LENGTH));
+        dbRestaurant.setLatitude(input.latitude);
+        dbRestaurant.setLongitude(input.longitude);
+        dbRestaurant.setCusineType(input.cusineType);
+        dbRestaurant.setOpeningTime(input.openingTime);
+        dbRestaurant.setClosingTime(input.closingTime);
+        dbRestaurant.setServiceType(input.serviceType);
         dbRestaurant.save();
 
         // Validate the table count
@@ -99,6 +105,13 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         dbRestaurant.setContactNo(input.contactNo);
         dbRestaurant.setTableCount(input.getTableCount());
         dbRestaurant.setLogo(input.getLogo());
+        dbRestaurant.setLatitude(input.latitude);
+        dbRestaurant.setLongitude(input.longitude);
+        dbRestaurant.setCusineType(input.cusineType);
+        dbRestaurant.setOpeningTime(input.openingTime);
+        dbRestaurant.setClosingTime(input.closingTime);
+        dbRestaurant.setServiceType(input.serviceType);
+
         dbRestaurant.save();
         return new CreateRestaurantOutput(
                 new Respone(Constants.SUCCESS_RESPONSE_CODE,Constants.SUCCESS_RESPONSE_MESSAGE), dbRestaurant);
@@ -118,6 +131,12 @@ public class CreateRestaurant implements RequestHandler<CreateRestaurant.CreateR
         public String action;
         public String tableCount;
         public String logo;
+        public String latitude;
+        public String longitude;
+        public String cusineType;
+        public String openingTime;
+        public String closingTime;
+        public String serviceType;
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
