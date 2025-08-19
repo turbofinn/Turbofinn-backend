@@ -1,12 +1,14 @@
 package org.turbofinn.dbmappers;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import com.google.gson.Gson;
 import lombok.*;
 import org.turbofinn.aws.AWSCredentials;
 
 
 @Getter@Setter@NoArgsConstructor@AllArgsConstructor@ToString
+@DynamoDBTable(tableName = "BankDetails")
 public class DB_BankDetails extends DB_DateTable{
 
     @DynamoDBHashKey

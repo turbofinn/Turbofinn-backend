@@ -12,8 +12,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.*;
-import org.turbofinn.razorPayUtil.RazorpayCallbacks;
-import org.turbofinn.razorPayUtil.RazorpayConstants;
 
 
 import java.io.File;
@@ -31,8 +29,8 @@ import java.util.stream.Collectors;
 
 public class TFLambdaUpdate {
 
-    private static String awsCredentialsProfileName = Constants.IS_PROD ? "turbofinn" : "turbofinn";
-    private static String lambdaLayer = Constants.IS_PROD ? "arn:aws:lambda:us-east-1:058264291984:layer:TF-Project-Layer:1" : "arn:aws:lambda:us-east-1:058264291984:layer:TF-Project-Layer:1";
+    private static String awsCredentialsProfileName = Constants.IS_PROD ? "Algoflow" : "Algoflow";
+    private static String lambdaLayer = Constants.IS_PROD ? "arn:aws:lambda:us-east-1:676373376148:layer:TF-Project-Layer:1" : "arn:aws:lambda:us-east-1:676373376148:layer:TF-Project-Layer:1";
 
     private static String projectPOMArtifactId = "Turbofinn-backend";
     private static String projectPOMVersion = "1.0-SNAPSHOT";
@@ -40,13 +38,13 @@ public class TFLambdaUpdate {
     private static String mavenPackagedZipFileName = projectPOMArtifactId + "-" + projectPOMVersion + "." + projectPOMPackaging;
     private static String mavenPackagedZipFilePath = "target/" + mavenPackagedZipFileName;
     private static final boolean updateLayer = false;
-    private static String s3BucketName = Constants.IS_PROD ? "lambda-layer-turbofinn" : "lambda-layer-turbofinn";
+    private static String s3BucketName = Constants.IS_PROD ? "lambda-layer-algoflow" : "lambda-layer-algoflow";
     private static String lambdaCodeZipFileName = Instant.now() + ".zip";
     private static List<String> aliasNameAndroid = Constants.IS_PROD ? Arrays.asList("") : Arrays.asList("");
     private static Regions region = Constants.IS_PROD ? Regions.US_EAST_1 : Regions.US_EAST_1;
 
 
-    private static List<String> lambdaFunctionsToupload = List.of("StockDetails");
+    private static List<String> lambdaFunctionsToupload = List.of("CreateOrder");
 
 
     public static void main(String[] args) throws MavenInvocationException {
@@ -72,11 +70,11 @@ public class TFLambdaUpdate {
 
     private static void createLambdaCodeZipFile() throws MavenInvocationException {
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setJavaHome(new File("C:\\Program Files\\Amazon Corretto\\jdk21.0.3_9"));
+        request.setJavaHome(new File("C:\\Program Files\\Java\\jdk21.0.8_9"));
         request.setGoals(Collections.singletonList("package"));
         request.setBaseDirectory(new File(System.getProperty("user.dir")));
         DefaultInvoker invoker = new DefaultInvoker();
-        invoker.setMavenHome(new File( "C:\\Program Files\\apache-maven-3.9.6"));
+        invoker.setMavenHome(new File( "C:\\Program Files\\apache-maven-3.9.10"));
         InvocationResult result = invoker.execute(request);
         if (result.getExitCode() != 0) {
             throw new RuntimeException("Could not create lambda package file.");

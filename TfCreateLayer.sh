@@ -1,17 +1,18 @@
 #!/bin/sh
 
-TIME_NOW_ISO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-LAYER_PACKAGE_NAME="TF-Lambda-Layer-${TIME_NOW_ISO}.zip"
+# Use dash instead of colon to make filename Windows-compatible
+TIME_NOW_ISO=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
+LAYER_PACKAGE_NAME="TF-Project-Layer-${TIME_NOW_ISO}.zip"
 
 # PROD CONFIG
 SERVER_NAME="PROD"
-LAYER_NAME="TF-Lambda-Layer"
-WEB_CODE_S3_BUCKET_NAME="lambda-layer-turbofinn"
-AWS_PROFILE_NAME="turbofinn"
+LAYER_NAME="TF-Project-Layer"
+WEB_CODE_S3_BUCKET_NAME="lambda-layer-algoflow"
+AWS_PROFILE_NAME="Algoflow"
 AWS_REGION="us-east-1"
 
 # Step 1: Change directory
-cd /Users/gauravsingh/Desktop/Turbofinn-backend/src/main/java/lib/ || exit
+cd A:/Turbofinn/src/main/java/org/turbofinn || exit
 
 # Verify the current directory
 echo "Current directory: $(pwd)"
@@ -38,7 +39,7 @@ fi
 
 # Step 4: Publish the layer
 echo "Uploaded to S3, publishing now..."
-/usr/local/bin/aws lambda publish-layer-version --profile ${AWS_PROFILE_NAME} --layer-name ${LAYER_NAME} \
+aws lambda publish-layer-version --profile ${AWS_PROFILE_NAME} --layer-name ${LAYER_NAME} \
     --description "Update from script : ${TIME_NOW_ISO}" \
     --content S3Bucket=${WEB_CODE_S3_BUCKET_NAME},S3Key="${LAYER_PACKAGE_NAME}" \
     --compatible-runtimes java21 --region ${AWS_REGION}
