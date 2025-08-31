@@ -31,7 +31,7 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
     }
     private static final AmazonS3 s3Client = AWSCredentials.s3Client();
 
-    private static final String BUCKET_NAME = "turbo-treats";
+    private static final String BUCKET_NAME = "turbotreats";
     private static final int URL_EXPIRATION_MINUTES = 10;
 
     private static final Set<String> VALID_MIME_TYPES = Set.of(
@@ -69,7 +69,7 @@ public class GetPresignedUrl implements RequestHandler<GetPresignedUrl.GetPresig
                     folderName="ProfileImage/";
                     break;
                 case "ITEM_PIC":
-                    folderName="Images/";
+                    folderName="foodItems/";
                     break;
                 case "RESTAURANT_LOGO":
                     folderName="RestaurantLogo/";

@@ -16,7 +16,7 @@ public class Constants {
 
     public static final Integer RESTAURANT_ACCOUNT_NO_LENGTH = 10;
 
-    public static final String RDS_URL = "jdbc:mysql://turbofinn-dev.cjmo2k0q4pt6.ap-south-1.rds.amazonaws.com:3306/Turbofinn";
+    public static final String RDS_URL = "jdbc:mysql://algoflow.c8feuua6c8wz.us-east-1.rds.amazonaws.com:3306/Algoflow";
     public static final String RDS_USERNAME = "root";
     public static final String RDS_PASSWORD = "Turbofinn111";
 

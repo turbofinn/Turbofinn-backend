@@ -71,7 +71,7 @@ public class CreateBankAccount implements RequestHandler<CreateBankAccount.Creat
     }
 
     @Getter@Setter@NoArgsConstructor@AllArgsConstructor
-    public class CreateBankAccountInput{
+    public static class CreateBankAccountInput{
         String restaurantId;
         String accountNumber;
         String ifsc;
