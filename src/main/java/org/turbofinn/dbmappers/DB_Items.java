@@ -41,6 +41,30 @@ public class DB_Items extends DB_DateTable {
     String isAvailable = "false";
     String discountActive = "false";
     String ingredientsAvailable = "false";
+    public static void main(String[] args) {
+        DB_Items item = new DB_Items();
+        item.setRestaurantId("resto123");
+        item.setName("Cheese Burger");
+        item.setType("food");
+        item.setCuisine("American");
+        item.setCategory("fastfood");
+        item.setFlag("veg");
+        item.setTag("burger");
+        item.setDescription("Delicious cheese burger with extra toppings");
+        item.setPrice(149.99);
+        item.setEta("15 mins");
+        item.setItemPicture("https://example.com/cheeseburger.jpg");
+        item.setCurrency("INR");
+        item.setIsAvailable("true");
+
+        // Save to DynamoDB
+        item.save();
+
+        // Fetch the same item (will only work if itemId is set & saved)
+        DB_Items fetchedItem = DB_Items.fetchItemByID(item.getItemId());
+        System.out.println("*** Fetched Item ***");
+        System.out.println(new Gson().toJson(fetchedItem));
+    }
 
     public static enum ActionType {
         CREATE("CREATE"),

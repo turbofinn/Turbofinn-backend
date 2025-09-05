@@ -16,6 +16,12 @@ import java.util.List;
 @ToString
 @DynamoDBTable(tableName = "Ingredients")
 public class DB_Ingredients extends DB_DateTable {
+    public static void main(String[] args) {
+        DB_Ingredients dbIngredients = new DB_Ingredients();
+        dbIngredients.setItemId("item1234");
+        dbIngredients.setRestaurantId("resto789");
+        dbIngredients.save();
+    }
 
     @DynamoDBHashKey
     String itemId;
