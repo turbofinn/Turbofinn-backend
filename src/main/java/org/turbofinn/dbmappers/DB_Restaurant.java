@@ -7,6 +7,7 @@ import lombok.*;
 import org.turbofinn.aws.AWSCredentials;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,6 +22,7 @@ public class DB_Restaurant extends DB_DateTable{
     String restaurantId;
     String name;
     String address;
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "city-index")
     String city;
     String state;
     String pincode;
@@ -31,6 +33,26 @@ public class DB_Restaurant extends DB_DateTable{
     String tableCount;
     String logo;
     String status;
+    @DynamoDBAttribute
+    List<String> cuisineTypes;
+    String openTime;
+    String closeTime;
+    Integer seatingCapacity;
+    @DynamoDBAttribute
+    List<String> serviceTypes;
+
+
+
+    Double latitude;
+    Double longitude;
+
+    String accountNumber;
+    String ifscCode;
+    String accountHolderName;
+    String bankName;
+
+
+
 
     public static enum ActionType {
         CREATE("CREATE"),
@@ -123,5 +145,45 @@ public class DB_Restaurant extends DB_DateTable{
                 queryExpression);
         return (dbQueryList != null && dbQueryList.size() > 0) ? dbQueryList : null;
 
+    }
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class BasicInfo {
+        private String restaurantName;
+        private String contactNumber;
+        private String email;
+    }
+
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class ProfileInfo {
+        private String[] cuisineTypes;
+        private Integer seatingCapacity;
+        private OperatingHours operatingHours;
+        private String[] serviceTypes;
+        private String customCuisine;
+
+    }
+
+
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class OperatingHours {
+        private String openTime;
+        private String closeTime;
+
+
+    }
+
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class AddressInfo {
+
+        private Double latitude;
+        private Double longitude;
+    }
+
+    @Getter @Setter @NoArgsConstructor @AllArgsConstructor
+    public static class BankDetails {
+        private String accountNumber;
+        private String ifscCode;
+        private String accountHolderName;
+        private String bankName;
     }
 }
