@@ -19,9 +19,9 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
 
         String paymentInfoJson = "{\n" +
                 "  \"step\": \"PAYMENT_INFO\",\n" +
-                "  \"restaurantId\": \"4d150b73-f808-417d-898a-80703844e3aa\",\n" +
+                "  \"restaurantId\": \"123e4567-e89b-12d3-a456-426614174000\",\n" +
                 "  \"bankDetails\": {\n" +
-                "    \"accountNumber\": \"123456789012\",\n" +
+                "    \"AccountNumber\": \"123456789012\",\n" +
                 "    \"ifscCode\": \"HDFC0001234\",\n" +
                 "    \"accountHolderName\": \"Local Test Cafe Owner\",\n" +
                 "    \"bankName\": \"HDFC Bank\"\n" +
@@ -45,9 +45,8 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         if(input == null || input.getStep() == null){
             return new OnboardingOutput(
                     new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,Constants.INVALID_INPUTS_RESPONSE_MESSAGE),
-                    null,
-                    null,
                     null
+
             );
 
         }
@@ -68,8 +67,6 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
                 return completeOnboarding(input);
             default: return new OnboardingOutput(
                     new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid step "),
-                    null,
-                    null,
                     null
             );
         }
@@ -80,77 +77,77 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         if(input.getBasicInfo() == null ||
                 input.getBasicInfo().getRestaurantName() == null ||
                 input.getBasicInfo().getContactNumber() == null ||
-                input.getBasicInfo().getEmail() == null){
+                input.getBasicInfo().getEmailId() == null){
             return new OnboardingOutput(
                     new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Missing required fields"),
-                    null, null ,null
+                    null
             );
         }
-        DB_Restaurant dbRestaurant;
-        if(input.getRestaurantId() == null){
-            if(DB_Restaurant.fetchRestaurantByMobileNo(input.getBasicInfo().getContactNumber()) != null){
-                return new OnboardingOutput(
-                        new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Contact number already registered"),
-                        null,null,null
-                );
-            }
-            dbRestaurant = new DB_Restaurant();
-            dbRestaurant.setRestaurantId(UUID.randomUUID().toString());
-            dbRestaurant.setStatus(DB_Restaurant.StatusType.INACTIVE.toString());
-        }else {
-            dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
-            if(dbRestaurant == null){
-                return new OnboardingOutput(
-                        new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Invalid restaurantId"),
-                        null , null ,null
-                );
-            }
+
+        if (DB_Restaurant.fetchRestaurantByMobileNo(input.getBasicInfo().getContactNumber()) != null) {
+            return new OnboardingOutput(
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Contact number already registered"),
+                    null
+            );
         }
+        if (DB_Restaurant.fetchRestaurantByEmailId(input.getBasicInfo().getEmailId()) != null) {
+            return new OnboardingOutput(
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Email already registered"),
+                    null
+            );
+        }
+        DB_Restaurant dbRestaurant = new DB_Restaurant();
+        dbRestaurant.setRestaurantId(UUID.randomUUID().toString());
+        dbRestaurant.setStatus(DB_Restaurant.StatusType.INACTIVE.toString());
         dbRestaurant.setName(input.getBasicInfo().getRestaurantName());
         dbRestaurant.setContactNo(input.getBasicInfo().getContactNumber());
-        dbRestaurant.setEmailId(input.getBasicInfo().getEmail());
+        dbRestaurant.setEmailId(input.getBasicInfo().getEmailId());
         dbRestaurant.save();
 
 
-        return  new OnboardingOutput(
-                new Response(Constants.SUCCESS_RESPONSE_CODE,"step BasicInfo Completed"),
-                dbRestaurant ,
-                dbRestaurant.getRestaurantId(),
-                null
+        return new OnboardingOutput(
+                new Response(Constants.SUCCESS_RESPONSE_CODE, "step BasicInfo Completed"),
+                dbRestaurant.getRestaurantId()
         );
-
     }
 
     private OnboardingOutput stepProfileInfo(OnboardingInput input){
         DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
         if (dbRestaurant == null){
             return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Invalid restaurantId"),
-                    null , null , null
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"RestaurantId is not found"),
+                    null
             );
         }
+        Gson gson = new Gson();
         DB_Restaurant.ProfileInfo profile = input.getProfileInfo();
+
         if (profile.getCuisineTypes() != null) {
-            dbRestaurant.setCuisineTypes(Arrays.asList(profile.getCuisineTypes()));
+            String[] cuisines = profile.getCuisineTypes();
 
             if (profile.getCustomCuisine() != null && !profile.getCustomCuisine().isEmpty()) {
-                dbRestaurant.getCuisineTypes().add(profile.getCustomCuisine());
+                String[] updated = Arrays.copyOf(cuisines, cuisines.length + 1);
+                updated[cuisines.length] = profile.getCustomCuisine();
+                cuisines = updated;
             }
+
+            dbRestaurant.setCuisineTypes(gson.toJson(cuisines));
         }
+
         if (profile.getServiceTypes() != null) {
-            dbRestaurant.setServiceTypes(Arrays.asList(profile.getServiceTypes()));
+            dbRestaurant.setServiceTypes(gson.toJson(profile.getServiceTypes()));
         }
         if (profile.getOperatingHours() != null) {
-            dbRestaurant.setOpenTime(profile.getOperatingHours().getOpenTime());
-            dbRestaurant.setCloseTime(profile.getOperatingHours().getCloseTime());
+            dbRestaurant.setOpeningTime(profile.getOperatingHours().getOpeningTime());
+            dbRestaurant.setClosingTime(profile.getOperatingHours().getClosingTime());
 
         }
         dbRestaurant.setSeatingCapacity(profile.getSeatingCapacity());
         dbRestaurant.save();
 
         return new OnboardingOutput(
-                new Response(Constants.SUCCESS_RESPONSE_CODE,"Step PROFILE_INFO completed"),
-                dbRestaurant,dbRestaurant.getRestaurantId(),null
+                new Response(Constants.SUCCESS_RESPONSE_CODE,"Step profile information completed"),
+                dbRestaurant.getRestaurantId()
         );
     }
 
@@ -158,8 +155,8 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
         if(dbRestaurant == null){
             return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Invalid sessionId"),
-                    null , null , null
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"RestaurantId is not found"),
+                    null
             );
         }
         DB_Restaurant.AddressInfo address = input.getAddressInfo();
@@ -168,16 +165,16 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         dbRestaurant.save();
 
         return new OnboardingOutput(
-                new Response(Constants.SUCCESS_RESPONSE_CODE, "Step ADDRESS_INFO completed"),
-                dbRestaurant, dbRestaurant.getRestaurantId(), null
+                new Response(Constants.SUCCESS_RESPONSE_CODE, "Step address information completed"),
+                dbRestaurant.getRestaurantId()
         );
     }
     private OnboardingOutput stepPaymentInfo(OnboardingInput input) {
         DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
         if(dbRestaurant == null) {
             return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid sessionId"),
-                    null, null, null
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "RestaurantId is not found"),
+                    null
             );
         }
 
@@ -189,16 +186,16 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         dbRestaurant.save();
 
         return new OnboardingOutput(
-                new Response(Constants.SUCCESS_RESPONSE_CODE, "Step PAYMENT_INFO completed"),
-                dbRestaurant, dbRestaurant.getRestaurantId(), null
+                new Response(Constants.SUCCESS_RESPONSE_CODE, "Step payment information completed"),
+                dbRestaurant.getRestaurantId()
         );
     }
     private OnboardingOutput completeOnboarding(OnboardingInput input) {
         DB_Restaurant dbRestaurant = DB_Restaurant.fetchRestaurantByID(input.getRestaurantId());
         if(dbRestaurant == null) {
             return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Invalid sessionId"),
-                    null, null, null
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "RestaurantId is not found"),
+                    null
             );
         }
 
@@ -207,9 +204,7 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
 
         return new OnboardingOutput(
                 new Response(Constants.SUCCESS_RESPONSE_CODE, "Onboarding completed successfully"),
-                dbRestaurant,
-                dbRestaurant.getRestaurantId(),
-                "/dashboard"
+                dbRestaurant.getRestaurantId()
         );
     }
 
@@ -231,9 +226,8 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
     public static class OnboardingOutput {
         private Response response;
-        private DB_Restaurant dbRestaurant;
         private String restaurantId;
-        private String dashboardUrl;
+
     }
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor
     public static class Response {

@@ -26,7 +26,10 @@ public class DB_Restaurant extends DB_DateTable{
     String city;
     String state;
     String pincode;
+
+    @DynamoDBIndexHashKey(globalSecondaryIndexName = "emailId-index")
     String emailId;
+
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "contactNo-index")
     String contactNo;
     String restaurantAccountNo;
@@ -34,19 +37,17 @@ public class DB_Restaurant extends DB_DateTable{
     String logo;
     String status;
     @DynamoDBAttribute
-    List<String> cuisineTypes;
-    String openTime;
-    String closeTime;
+    String cuisineTypes;
+    String openingTime;
+    String closingTime;
     Integer seatingCapacity;
     @DynamoDBAttribute
-    List<String> serviceTypes;
-
-
+    String serviceTypes;
 
     Double latitude;
     Double longitude;
 
-    String accountNumber;
+    String AccountNumber;
     String ifscCode;
     String accountHolderName;
     String bankName;
@@ -133,6 +134,22 @@ public class DB_Restaurant extends DB_DateTable{
                 queryExpression);
         return (dbQueryList != null && dbQueryList.size() > 0) ? dbQueryList.get(0) : null;
     }
+    public static DB_Restaurant fetchRestaurantByEmailId(String emailId) {
+        HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":emailId", new AttributeValue().withS(emailId));
+
+        DynamoDBQueryExpression<DB_Restaurant> queryExpression = new DynamoDBQueryExpression<DB_Restaurant>()
+                .withIndexName("emailId-index")
+                .withKeyConditionExpression("emailId = :emailId")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withConsistentRead(false);
+
+        PaginatedQueryList<DB_Restaurant> dbQueryList =
+                AWSCredentials.dynamoDBMapper().query(DB_Restaurant.class, queryExpression);
+
+        return (dbQueryList != null && dbQueryList.size() > 0) ? dbQueryList.get(0) : null;
+    }
+
 
     public static  PaginatedQueryList<DB_Restaurant> fetchByCity(String city) {
         HashMap<String, AttributeValue> expressionAttributeValues = new HashMap<>();
@@ -150,7 +167,9 @@ public class DB_Restaurant extends DB_DateTable{
     public static class BasicInfo {
         private String restaurantName;
         private String contactNumber;
-        private String email;
+        private String emailId;
+
+
     }
 
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor
@@ -166,8 +185,8 @@ public class DB_Restaurant extends DB_DateTable{
 
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor
     public static class OperatingHours {
-        private String openTime;
-        private String closeTime;
+        private String openingTime;
+        private String closingTime;
 
 
     }
@@ -181,7 +200,7 @@ public class DB_Restaurant extends DB_DateTable{
 
     @Getter @Setter @NoArgsConstructor @AllArgsConstructor
     public static class BankDetails {
-        private String accountNumber;
+        private String AccountNumber;
         private String ifscCode;
         private String accountHolderName;
         private String bankName;
