@@ -17,19 +17,17 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
         RestaurantOnboarding handler = new RestaurantOnboarding();
         Gson gson = new Gson();
 
-        String paymentInfoJson = "{\n" +
-                "  \"step\": \"PAYMENT_INFO\",\n" +
-                "  \"restaurantId\": \"123e4567-e89b-12d3-a456-426614174000\",\n" +
-                "  \"bankDetails\": {\n" +
-                "    \"AccountNumber\": \"123456789012\",\n" +
-                "    \"ifscCode\": \"HDFC0001234\",\n" +
-                "    \"accountHolderName\": \"Local Test Cafe Owner\",\n" +
-                "    \"bankName\": \"HDFC Bank\"\n" +
-                "  }\n" +
-                "}";
+        String basicInfoJson = "{"
+                + "\"step\":\"BASIC_INFO\","
+                + "\"basicInfo\":{"
+                + "\"restaurantName\":\"Prite Cafe\","
+                + "\"contactNumber\":\"9238995777\","
+                + "\"emailId\":\"Pnite@gmail.com\""
+                + "}"
+                + "}";
 
 
-        OnboardingInput input = gson.fromJson(paymentInfoJson, OnboardingInput.class);
+        OnboardingInput input = gson.fromJson(basicInfoJson, OnboardingInput.class);
 
 
         OnboardingOutput output = handler.handleRequest(input, null);
@@ -79,22 +77,40 @@ public class RestaurantOnboarding implements RequestHandler<RestaurantOnboarding
                 input.getBasicInfo().getContactNumber() == null ||
                 input.getBasicInfo().getEmailId() == null){
             return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Missing required fields"),
+                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE,"Missing required details"),
                     null
             );
         }
 
-        if (DB_Restaurant.fetchRestaurantByMobileNo(input.getBasicInfo().getContactNumber()) != null) {
-            return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Contact number already registered"),
-                    null
-            );
-        }
-        if (DB_Restaurant.fetchRestaurantByEmailId(input.getBasicInfo().getEmailId()) != null) {
-            return new OnboardingOutput(
-                    new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Email already registered"),
-                    null
-            );
+        DB_Restaurant existingByMobile = DB_Restaurant.fetchRestaurantByMobileNo(input.getBasicInfo().getContactNumber());
+        DB_Restaurant existingByEmail = DB_Restaurant.fetchRestaurantByEmailId(input.getBasicInfo().getEmailId());
+
+        if (existingByMobile != null || existingByEmail != null) {
+            DB_Restaurant existing = existingByMobile != null ? existingByMobile : existingByEmail;
+
+            if (DB_Restaurant.StatusType.ACTIVE.toString().equalsIgnoreCase(existing.getStatus())) {
+                if (existingByMobile != null) {
+                    return new OnboardingOutput(
+                            new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Contact number already in use"),
+                            null
+                    );
+                } else {
+                    return new OnboardingOutput(
+                            new Response(Constants.INVALID_INPUTS_RESPONSE_CODE, "Email already in use"),
+                            null
+                    );
+                }
+            }
+
+            if (DB_Restaurant.StatusType.INACTIVE.toString().equalsIgnoreCase(existing.getStatus())) {
+                existing.setName(input.getBasicInfo().getRestaurantName());
+                existing.save();
+
+                return new OnboardingOutput(
+                        new Response(Constants.SUCCESS_RESPONSE_CODE, "Restaurant updated "),
+                        existing.getRestaurantId()
+                );
+            }
         }
         DB_Restaurant dbRestaurant = new DB_Restaurant();
         dbRestaurant.setRestaurantId(UUID.randomUUID().toString());
